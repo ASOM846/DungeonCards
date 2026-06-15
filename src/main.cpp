@@ -2,10 +2,18 @@
 #include <string>
 #include <vector>
 
+enum class CardType {
+	ENEMY,
+	WEAPON,
+	POTION,
+	PLAYER,
+	COUNT
+};
+
 struct Card {
 	std::string name;
 	int value;
-	int type; // 0 - bron 1 - potka 2 - przeciwnik
+	CardType type;
 };
 
 struct Pile {
@@ -15,6 +23,7 @@ struct Pile {
 
 enum PlayerSlot {
 	P_LEFT,
+	P_PLAYER,
 	P_RIGHT,
 	P_BACKPACK,
 	P_COUNT
@@ -31,6 +40,37 @@ struct GameState {
 	Pile playerPiles[P_COUNT];
 	Pile dungeonPiles[D_COUNT];
 };
+
+Card GenerateCard(const CardType type) {
+	Card c;
+	c.type = type;
+
+	switch (type) {
+	case CardType::ENEMY:
+		c.name = "MONSTER";
+		c.value = GetRandomValue(1, 8);
+		break;
+	case CardType::WEAPON:
+		c.name = "WEAPON";
+		c.value = GetRandomValue(2, 5);
+		break;
+	case CardType::POTION:
+		c.name = "POTION - HP";
+		c.value = GetRandomValue(2, 6);
+		break;
+	case CardType::PLAYER:
+	case CardType::COUNT:
+		break;
+	}
+	return c;
+}
+
+Card GenerateRandomCard() {
+	auto randomType = static_cast<CardType>(
+		GetRandomValue(0, static_cast<int>(CardType::PLAYER) - 1));
+
+	return GenerateCard(randomType);
+}
 
 void DrawPile(Pile &pile, int &width, int &height, bool isSelected) {
 	DrawRectangleV(pile.position,
@@ -54,6 +94,41 @@ void DrawPile(Pile &pile, int &width, int &height, bool isSelected) {
 			 pile.position.y + 40, 20, DARKBLUE);
 }
 
+void HandleInteraction(Pile *&selected, Pile &target) {
+	if (selected == nullptr) {
+		if (!target.cards.empty())
+			selected = &target;
+		return;
+	}
+	if (selected == &target || target.cards.empty()) {
+		selected = nullptr;
+		return;
+	}
+
+	Card &sel = selected->cards.back();
+	Card &tar = target.cards.back();
+
+	if (sel.type == CardType::WEAPON && tar.type == CardType::ENEMY) {
+		if (sel.value >= tar.value) {
+			sel.value -= tar.value;
+
+			target.cards.pop_back();
+
+			if (sel.value <= 0) {
+				selected->cards.pop_back();
+			}
+		} else {
+			tar.value -= sel.value;
+			selected->cards.pop_back();
+		}
+	} else if (sel.type == CardType::POTION && tar.type == CardType::PLAYER) {
+		tar.value += sel.value;
+		selected->cards.pop_back();
+	}
+
+	selected = nullptr;
+}
+
 int main() {
 	const int screenWidth = 800;
 	const int screenHeight = 600;
@@ -72,55 +147,59 @@ int main() {
 
 	int spacing = 20;
 
+	int totalWidth = (D_COUNT * pileWidth) + ((D_COUNT - 1) * spacing);
+	int startX = (screenWidth - totalWidth) / 2;
+
 	for (int i = 0; i < D_COUNT; i++) {
 		state.dungeonPiles[i].position = {
-			.x = (float)(spacing + i * (pileWidth + spacing)), .y = 20.0f};
+			.x = (float)(startX + i * (pileWidth + spacing)), .y = 20.0f};
 	}
+
+	totalWidth = (P_COUNT * pileWidth) + ((P_COUNT - 1) * spacing);
+	startX = (screenWidth - totalWidth) / 2;
 
 	for (int i = 0; i < P_COUNT; i++) {
 		state.playerPiles[i].position = {
-			.x = (float)(spacing + i * (pileWidth + spacing)), .y = 300.0f};
+			.x = (float)(startX + i * (pileWidth + spacing)), .y = 300.0f};
 	}
 
-	Card card1 = {.name = "HP", .value = 5, .type = 1};
-	Card card2 = {.name = "monster", .value = 3, .type = 2};
-	Card card3 = {.name = "miecz", .value = 2, .type = 0};
-	Card card4 = {.name = "monster", .value = 3, .type = 2};
+	Card player = {.name = "PLAYER", .value = 10, .type = CardType::PLAYER};
 
-	state.dungeonPiles[D_ONE].cards.push_back(card1);
-	state.dungeonPiles[D_TWO].cards.push_back(card2);
-	state.dungeonPiles[D_THREE].cards.push_back(card3);
+	for (auto &i : state.dungeonPiles) {
+		for (int j = 0; j < 10; j++) {
+			i.cards.push_back(GenerateCard(CardType::ENEMY));
+		}
+	}
 
-	state.playerPiles[P_LEFT].cards.push_back(card3);
-	state.playerPiles[P_RIGHT].cards.push_back(card3);
+	Card sword = {.name = "SWORD", .value = 8, .type = CardType::WEAPON};
+	Card hpPotion = {.name = "HP POTION", .value = 4, .type = CardType::POTION};
 
-	Pile *selectedPile;
+	state.playerPiles[P_PLAYER].cards.push_back(player);
+	state.playerPiles[P_RIGHT].cards.push_back(sword);
+	state.playerPiles[P_BACKPACK].cards.push_back(hpPotion);
+
+	Pile *selectedPile = nullptr;
 
 	while (!WindowShouldClose()) {
 		Vector2 mousePos = GetMousePosition();
 
-		for (auto &dungeonPile : state.dungeonPiles) {
-			Rectangle rec = {dungeonPile.position.x, dungeonPile.position.y,
-							 (float)pileWidth, (float)pileHeight};
-			if (CheckCollisionPointRec(mousePos, rec) &&
-				IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-				if (selectedPile == &dungeonPile) {
-					selectedPile = nullptr;
-				} else {
-					selectedPile = &dungeonPile;
+		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+			Vector2 mousePos = GetMousePosition();
+
+			for (auto &dungeonPile : state.dungeonPiles) {
+				if (CheckCollisionPointRec(mousePos, {dungeonPile.position.x,
+													  dungeonPile.position.y,
+													  (float)pileWidth,
+													  (float)pileHeight})) {
+					HandleInteraction(selectedPile, dungeonPile);
 				}
 			}
-		}
 
-		for (auto &playerPile : state.playerPiles) {
-			Rectangle rec = {playerPile.position.x, playerPile.position.y,
-							 (float)pileWidth, (float)pileHeight};
-			if (CheckCollisionPointRec(mousePos, rec) &&
-				IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-				if (selectedPile == &playerPile) {
-					selectedPile = nullptr;
-				} else {
-					selectedPile = &playerPile;
+			for (auto &playerPile : state.playerPiles) {
+				if (CheckCollisionPointRec(
+						mousePos, {playerPile.position.x, playerPile.position.y,
+								   (float)pileWidth, (float)pileHeight})) {
+					HandleInteraction(selectedPile, playerPile);
 				}
 			}
 		}
