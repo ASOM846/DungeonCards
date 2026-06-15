@@ -77,10 +77,11 @@ void DrawPile(Pile &pile, int &width, int &height, bool isSelected) {
 				   {static_cast<float>(width), static_cast<float>(height)},
 				   GRAY);
 
-	if (isSelected)
+	if (isSelected) {
 		DrawRectangleLinesEx(
 			{pile.position.x, pile.position.y, (float)width, (float)height}, 4,
 			ORANGE);
+	}
 
 	if (pile.cards.empty()) {
 		return;
@@ -94,13 +95,28 @@ void DrawPile(Pile &pile, int &width, int &height, bool isSelected) {
 			 pile.position.y + 40, 20, DARKBLUE);
 }
 
-void HandleInteraction(Pile *&selected, Pile &target) {
+void HandleInteraction(Pile *&selected, Pile &target, int &score) {
 	if (selected == nullptr) {
 		if (!target.cards.empty())
 			selected = &target;
 		return;
 	}
-	if (selected == &target || target.cards.empty()) {
+
+	if (selected == &target) {
+		selected = nullptr;
+		return;
+	}
+
+	if (target.cards.empty()) {
+		Card &sel = selected->cards.back();
+
+		if (sel.type == CardType::PLAYER) {
+			selected = nullptr;
+			return;
+		}
+
+		target.cards.push_back(selected->cards.back());
+		selected->cards.pop_back();
 		selected = nullptr;
 		return;
 	}
@@ -110,6 +126,8 @@ void HandleInteraction(Pile *&selected, Pile &target) {
 
 	if (sel.type == CardType::WEAPON && tar.type == CardType::ENEMY) {
 		if (sel.value >= tar.value) {
+			score += tar.value;
+
 			sel.value -= tar.value;
 
 			target.cards.pop_back();
@@ -121,6 +139,12 @@ void HandleInteraction(Pile *&selected, Pile &target) {
 			tar.value -= sel.value;
 			selected->cards.pop_back();
 		}
+	} else if (sel.type == CardType::PLAYER && tar.type == CardType::ENEMY) {
+		score += tar.value;
+
+		sel.value -= tar.value;
+		target.cards.pop_back();
+
 	} else if (sel.type == CardType::POTION && tar.type == CardType::PLAYER) {
 		tar.value += sel.value;
 		selected->cards.pop_back();
@@ -136,7 +160,8 @@ int main() {
 	int pileWidth = 150;
 	int pileHeight = 250;
 
-	int hp = 10;
+	int score = 0;
+	bool gameOver = false;
 
 	InitWindow(screenWidth, screenHeight,
 			   "raylib [core] example - basic window");
@@ -166,8 +191,16 @@ int main() {
 	Card player = {.name = "PLAYER", .value = 10, .type = CardType::PLAYER};
 
 	for (auto &i : state.dungeonPiles) {
-		for (int j = 0; j < 10; j++) {
-			i.cards.push_back(GenerateCard(CardType::ENEMY));
+		for (int j = 0; j < 32; j++) {
+			int seed = GetRandomValue(0, 4);
+			if (seed == 0 || seed == 1 || seed == 2) {
+				i.cards.push_back(GenerateCard(CardType::ENEMY));
+			} else if (seed == 3) {
+				i.cards.push_back(GenerateCard(CardType::POTION));
+			} else {
+				i.cards.push_back(GenerateCard(CardType::WEAPON));
+				TraceLog(LOG_INFO, "weapon spawned");
+			}
 		}
 	}
 
@@ -181,27 +214,36 @@ int main() {
 	Pile *selectedPile = nullptr;
 
 	while (!WindowShouldClose()) {
-		Vector2 mousePos = GetMousePosition();
+		if (state.playerPiles[P_PLAYER].cards.back().value <= 0) {
+			gameOver = true;
+		}
 
-		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-			Vector2 mousePos = GetMousePosition();
+		if (!gameOver) {
+			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+				Vector2 mousePos = GetMousePosition();
 
-			for (auto &dungeonPile : state.dungeonPiles) {
-				if (CheckCollisionPointRec(mousePos, {dungeonPile.position.x,
-													  dungeonPile.position.y,
-													  (float)pileWidth,
-													  (float)pileHeight})) {
-					HandleInteraction(selectedPile, dungeonPile);
+				for (auto &dungeonPile : state.dungeonPiles) {
+					if (CheckCollisionPointRec(
+							mousePos,
+							{dungeonPile.position.x, dungeonPile.position.y,
+							 (float)pileWidth, (float)pileHeight})) {
+						HandleInteraction(selectedPile, dungeonPile, score);
+					}
+				}
+
+				for (auto &playerPile : state.playerPiles) {
+					if (CheckCollisionPointRec(mousePos, {playerPile.position.x,
+														  playerPile.position.y,
+														  (float)pileWidth,
+														  (float)pileHeight})) {
+						HandleInteraction(selectedPile, playerPile, score);
+					}
 				}
 			}
+		}
 
-			for (auto &playerPile : state.playerPiles) {
-				if (CheckCollisionPointRec(
-						mousePos, {playerPile.position.x, playerPile.position.y,
-								   (float)pileWidth, (float)pileHeight})) {
-					HandleInteraction(selectedPile, playerPile);
-				}
-			}
+		if (IsKeyPressed(KEY_SPACE)) {
+			state.playerPiles[P_PLAYER].cards.back().value = 0;
 		}
 
 		BeginDrawing();
@@ -218,7 +260,29 @@ int main() {
 			DrawPile(pile, pileWidth, pileHeight, isSel);
 		}
 
-		DrawText(TextFormat("HP: %d", hp), 40, GetScreenHeight() - 40, 20, RED);
+		if (gameOver) {
+			int barHeight = 100;
+			int barY = GetScreenHeight() / 2 - barHeight / 2;
+
+			DrawRectangle(0, barY, GetScreenWidth(), barHeight,
+						  Color{0, 0, 0, 200});
+
+			const char *measage = "GAME LOST";
+			int fontSize = 30;
+			int textWidth = MeasureText(measage, fontSize);
+
+			int textY = barY + barHeight / 2 - fontSize / 2;
+			int textX = GetScreenWidth() / 2 - textWidth / 2;
+
+			DrawText(measage, textX, textY, fontSize, RED);
+		}
+
+		DrawText(TextFormat("HP: %d",
+							state.playerPiles[P_PLAYER].cards.back().value),
+				 40, GetScreenHeight() - 40, 20, RED);
+
+		DrawText(TextFormat("SCORE: %d", score), 120, GetScreenHeight() - 40,
+				 20, BLUE);
 
 		EndDrawing();
 	}
