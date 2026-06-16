@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gameState.hpp"
+#include "pile.hpp"
 #include "types.hpp"
 #include "ui.hpp"
 #include <raylib.h>
@@ -18,7 +20,6 @@ class Game {
 	void Draw();
 
 	void HandleInteraction(Pile *&selected, Pile &target, int &score);
-	void DrawPile(Pile &pile, int &width, int &height, bool isSelected);
 	Card GenerateRandomCard();
 	Card GenerateCard(const CardType type);
 

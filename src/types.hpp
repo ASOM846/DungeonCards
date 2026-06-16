@@ -32,13 +32,3 @@ struct Card {
 	int value;
 	CardType type;
 };
-
-struct Pile {
-	std::vector<Card> cards;
-	Vector2 position;
-};
-
-struct GameState {
-	Pile playerPiles[P_COUNT];
-	Pile dungeonPiles[D_COUNT];
-};

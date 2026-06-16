@@ -21,6 +21,8 @@ void Game::Reset() {
 	for (int i = 0; i < D_COUNT; i++) {
 		state.dungeonPiles[i].position = {
 			.x = (float)(startX + i * (pileWidth + spacing)), .y = 20.0f};
+		state.dungeonPiles[i].width = pileWidth;
+		state.dungeonPiles[i].height = pileHeight;
 	}
 
 	totalWidth = (P_COUNT * pileWidth) + ((P_COUNT - 1) * spacing);
@@ -29,6 +31,8 @@ void Game::Reset() {
 	for (int i = 0; i < P_COUNT; i++) {
 		state.playerPiles[i].position = {
 			.x = (float)(startX + i * (pileWidth + spacing)), .y = 300.0f};
+		state.playerPiles[i].width = pileWidth;
+		state.playerPiles[i].height = pileHeight;
 	}
 
 	for (auto &i : state.dungeonPiles) {
@@ -98,12 +102,12 @@ void Game::Update() {
 void Game::Draw() {
 	for (auto &pile : state.dungeonPiles) {
 		bool isSel = (&pile == selectedPile);
-		DrawPile(pile, pileWidth, pileHeight, isSel);
+		pile.Draw(isSel);
 	}
 
 	for (auto &pile : state.playerPiles) {
 		bool isSel = (&pile == selectedPile);
-		DrawPile(pile, pileWidth, pileHeight, isSel);
+		pile.Draw(isSel);
 	}
 
 	if (gameOver) {
@@ -191,46 +195,6 @@ void Game::HandleInteraction(Pile *&selected, Pile &target, int &score) {
 	}
 
 	selected = nullptr;
-}
-
-void Game::DrawPile(Pile &pile, int &width, int &height, bool isSelected) {
-	DrawRectangleV(pile.position,
-				   {static_cast<float>(width), static_cast<float>(height)},
-				   GRAY);
-
-	if (isSelected) {
-		DrawRectangleLinesEx(
-			{pile.position.x, pile.position.y, (float)width, (float)height}, 4,
-			ORANGE);
-	}
-
-	if (pile.cards.empty()) {
-		return;
-	}
-
-	int fontSize = 20;
-	int spacing = 20;
-
-	int offsetY = height / 2 - fontSize * 2 - spacing / 2;
-
-	Card *topCard = &pile.cards.back();
-
-	const char *name = topCard->name.c_str();
-
-	int textWidth = MeasureText(name, fontSize);
-
-	int textX = pile.position.x + width / 2 - textWidth / 2;
-
-	DrawText(topCard->name.c_str(), textX, pile.position.y + offsetY, fontSize,
-			 BLACK);
-
-	const char *value = TextFormat("Val: %d", topCard->value);
-	textWidth = MeasureText(value, fontSize);
-
-	textX = pile.position.x + width / 2 - textWidth / 2;
-
-	DrawText(value, textX, pile.position.y + offsetY + spacing, fontSize,
-			 DARKBLUE);
 }
 
 Card Game::GenerateRandomCard() {
