@@ -4,20 +4,21 @@
 
 void Game::Init() {
 	Reset();
-	pileManager.Init();
 }
 
 void Game::Reset() {
 	score = 0;
 	gameOver = false;
+
+	pileManager.Init();
 }
 
 void Game::Run() {}
 
 void Game::Update() {
 	Pile &playerPile = pileManager.GetPlayerPile(P_PLAYER);
-	if (!playerPile.cards.empty()) {
-		if (playerPile.cards.back().value <= 0) {
+	if (!playerPile.IsEmpty()) {
+		if (playerPile.Back().value <= 0) {
 			gameOver = true;
 		}
 	}
@@ -27,14 +28,15 @@ void Game::Update() {
 			Vector2 mousePos = GetMousePosition();
 			Pile *clickedPile = pileManager.GetPileAt(mousePos);
 
-			if (clickedPile != nullptr)
+			if (clickedPile != nullptr) {
 				HandleInteraction(clickedPile);
+			}
 		}
 	}
 
 	if (gameOver) {
 		if (IsKeyDown(KEY_SPACE)) {
-			CloseWindow();
+			Reset();
 		}
 	}
 }
@@ -69,7 +71,9 @@ void Game::Draw() {
 		DrawText(meseage2, textX, textY + 30, fontSize, RED);
 	}
 
-	ui.Draw(pileManager.GetPlayerPile(P_PLAYER).cards.back().value, score);
+	if (!pileManager.GetPlayerPile(P_PLAYER).IsEmpty()) {
+		Ui::Draw(pileManager.GetPlayerPile(P_PLAYER).cards.back().value, score);
+	}
 }
 
 void Game::HandleInteraction(Pile *target) {
@@ -102,7 +106,7 @@ void Game::HandleInteraction(Pile *target) {
 	Card &sel = selected->cards.back();
 	Card &tar = target->cards.back();
 
-	if (sel.type == CardType::WEAPON && tar.type == CardType::ENEMY) {
+	if (sel.type == CardType::SWORD && tar.type == CardType::ENEMY) {
 		if (sel.value >= tar.value) {
 			score += tar.value;
 

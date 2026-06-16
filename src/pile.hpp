@@ -16,6 +16,9 @@ struct Pile {
 	int height;
 
 	[[nodiscard]] bool IsEmpty() const { return cards.empty(); }
+	[[nodiscard]] Card &Back() { return cards.back(); }
 
 	void Draw(bool &isSelected);
+
+	void DrawEnemy(const int &centerX, const int &centerY, Color color);
 };
