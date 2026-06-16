@@ -43,31 +43,34 @@ void PileManager::Init() {
 		for (int j = 0; j < 32; j++) {
 			int roll = GetRandomValue(0, 99);
 			CardType selectedType;
+			Element selectedElement = Element::NONE;
 
-			if (roll < 40) {
+			if (roll < 35) {
 				selectedType = CardType::ENEMY;
-			} else if (roll < 50) {
-				selectedType = CardType::ENEMY_FIRE;
-			} else if (roll < 60) {
-				selectedType = CardType::ENEMY_ICE;
-			} else if (roll < 75) {
+			} else if (roll < 47) {
+				selectedType = CardType::ENEMY;
+				selectedElement = Element::ICE;
+			} else if (roll < 59) {
+				selectedType = CardType::ENEMY;
+				selectedElement = Element::FIRE;
+			} else if (roll < 74) {
 				selectedType = CardType::POTION;
-			} else if (roll < 90) {
-				selectedType = CardType::SWORD;
-			} else if (roll < 95) {
-				selectedType = CardType::WAND_FIRE;
+			} else if (roll < 88) {
+				selectedType = CardType::WEAPON;
+			} else if (roll < 94) {
+				selectedType = CardType::WAND;
+				selectedElement = Element::FIRE;
 			} else {
-				selectedType = CardType::WAND_ICE;
+				selectedType = CardType::WAND;
+				selectedElement = Element::ICE;
 			}
 
-			Card card = GenerateCard(selectedType);
+			Card card = GenerateCard(selectedType, selectedElement);
 
 			int depth = 31 - j;
 			int stage = (depth / 6) + 1;
 
-			if (selectedType == CardType::ENEMY ||
-				selectedType == CardType::ENEMY_FIRE ||
-				selectedType == CardType::ENEMY_ICE) {
+			if (selectedType == CardType::ENEMY) {
 				card.value = GetRandomValue(stage, stage + 2);
 			} else if (selectedType == CardType::POTION) {
 				card.value = GetRandomValue(2, stage + 4);
@@ -80,14 +83,10 @@ void PileManager::Init() {
 	}
 
 	Card player = {.name = "PLAYER", .value = 10, .type = CardType::PLAYER};
-	Card iceWand = {.name = "ICE WAND", .value = 8, .type = CardType::WAND_ICE};
-	Card fireWand = {
-		.name = "FIRE WAND", .value = 8, .type = CardType::WAND_FIRE};
 	Card hpPotion = {.name = "HP POTION", .value = 4, .type = CardType::POTION};
-
+	Card sword = {.name = "SWORD", .value = 8, .type = CardType::WEAPON};
 	playerPiles[P_PLAYER].cards.push_back(player);
-	playerPiles[P_RIGHT].cards.push_back(fireWand);
-	playerPiles[P_LEFT].cards.push_back(iceWand);
+	playerPiles[P_RIGHT].cards.push_back(sword);
 	playerPiles[P_BACKPACK].cards.push_back(hpPotion);
 }
 
@@ -128,28 +127,35 @@ Card PileManager::GenerateRandomCard() {
 	auto randomType = static_cast<CardType>(
 		GetRandomValue(0, static_cast<int>(CardType::PLAYER) - 1));
 
-	return GenerateCard(randomType);
+	return GenerateCard(randomType, Element::NONE);
 }
 
-Card PileManager::GenerateCard(const CardType type) {
+Card PileManager::GenerateCard(const CardType type, const Element element) {
 	Card c;
 	c.type = type;
+	c.element = element;
 
 	switch (type) {
 	case CardType::ENEMY:
 		c.name = "MONSTER";
+
+		if (c.element == Element::ICE)
+			c.name = "ICE\nMONSTER";
+		if (c.element == Element::FIRE)
+			c.name = "FIRE\nMONSTER";
+
 		c.value = GetRandomValue(1, 8);
 		break;
-	case CardType::SWORD:
+	case CardType::WEAPON:
 		c.name = "SWORD";
 		c.value = GetRandomValue(2, 5);
 		break;
-	case CardType::WAND_ICE:
-		c.name = "ICE WAND";
-		c.value = GetRandomValue(4, 10);
-		break;
-	case CardType::WAND_FIRE:
-		c.name = "FIRE WAND";
+	case CardType::WAND:
+		if (c.element == Element::ICE)
+			c.name = "ICE WAND";
+		if (c.element == Element::FIRE)
+			c.name = "FIRE WAND";
+
 		c.value = GetRandomValue(4, 10);
 		break;
 	case CardType::POTION:

@@ -4,13 +4,17 @@
 #include <string>
 #include <vector>
 
+enum class Element {
+	NONE,
+	FIRE,
+	ICE,
+	COUNT
+};
+
 enum class CardType {
 	ENEMY,
-	ENEMY_ICE,
-	ENEMY_FIRE,
-	SWORD,
-	WAND_ICE,
-	WAND_FIRE,
+	WEAPON,
+	WAND,
 	POTION,
 	PLAYER,
 	COUNT
@@ -35,4 +39,5 @@ struct Card {
 	std::string name;
 	int value;
 	CardType type;
+	Element element;
 };

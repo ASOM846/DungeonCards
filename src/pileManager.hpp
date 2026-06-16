@@ -18,7 +18,7 @@ class PileManager {
 	Pile &GetDungeonPile(DungeonSlot slot) { return dungeonPiles[slot]; }
 
 	Card GenerateRandomCard();
-	Card GenerateCard(const CardType type);
+	Card GenerateCard(const CardType type, const Element element);
 
   private:
 	Pile playerPiles[P_COUNT];

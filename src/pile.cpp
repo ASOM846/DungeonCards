@@ -55,18 +55,16 @@ void Pile::Draw(bool &isSelected) {
 
 	switch (topCard->type) {
 	case CardType::ENEMY: {
-		DrawEnemy(centerX, centerY, GREEN);
+		if (topCard->element == Element::NONE) {
+			DrawEnemy(centerX, centerY, GREEN);
+		} else if (topCard->element == Element::FIRE) {
+			DrawEnemy(centerX, centerY, RED);
+		} else {
+			DrawEnemy(centerX, centerY, BLUE);
+		}
 		break;
 	}
-	case CardType::ENEMY_ICE: {
-		DrawEnemy(centerX, centerY, BLUE);
-		break;
-	}
-	case CardType::ENEMY_FIRE: {
-		DrawEnemy(centerX, centerY, ORANGE);
-		break;
-	}
-	case CardType::SWORD: {
+	case CardType::WEAPON: {
 		DrawRectangle(centerX - 6, centerY - 45, 12, 55, LIGHTGRAY);
 		DrawRectangleLines(centerX - 6, centerY - 45, 12, 55, DARKGRAY);
 		DrawTriangle({centerX - 6, centerY - 45}, {centerX, centerY - 57},
@@ -76,7 +74,7 @@ void Pile::Draw(bool &isSelected) {
 		DrawCircle(centerX, centerY + 40, 6, GOLD);
 		break;
 	}
-	case CardType::WAND_ICE: {
+	case CardType::WAND: {
 		DrawRectangle(centerX - 4, centerY - 10, 8, 45, LIGHTGRAY);
 		DrawRectangle(centerX - 8, centerY - 15, 16, 6, SKYBLUE);
 		DrawTriangle({centerX - 14, centerY - 30}, {centerX, centerY - 52},
@@ -89,16 +87,16 @@ void Pile::Draw(bool &isSelected) {
 					 {centerX, centerY - 18}, WHITE);
 		break;
 	}
-	case CardType::WAND_FIRE: {
-		DrawRectangle(centerX - 4, centerY - 10, 8, 45, BROWN);
-		DrawRectangle(centerX - 8, centerY - 15, 16, 6, GOLD);
-		DrawCircle(centerX, centerY - 30, 16, RED);
-		DrawCircle(centerX, centerY - 26, 10, ORANGE);
-		DrawTriangle({centerX - 10, centerY - 25}, {centerX, centerY - 48},
-					 {centerX + 10, centerY - 25}, ORANGE);
-		DrawCircle(centerX, centerY - 24, 5, YELLOW);
-		break;
-	}
+	// case CardType::WAND_FIRE: {
+	// 	DrawRectangle(centerX - 4, centerY - 10, 8, 45, BROWN);
+	// 	DrawRectangle(centerX - 8, centerY - 15, 16, 6, GOLD);
+	// 	DrawCircle(centerX, centerY - 30, 16, RED);
+	// 	DrawCircle(centerX, centerY - 26, 10, ORANGE);
+	// 	DrawTriangle({centerX - 10, centerY - 25}, {centerX, centerY - 48},
+	// 				 {centerX + 10, centerY - 25}, ORANGE);
+	// 	DrawCircle(centerX, centerY - 24, 5, YELLOW);
+	// 	break;
+	// }
 	case CardType::POTION: {
 		DrawCircle(centerX, centerY + 15, 30, DARKGRAY);
 		DrawCircle(centerX, centerY + 15, 27, LIME);

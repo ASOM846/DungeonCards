@@ -17,8 +17,6 @@ class Game {
 	void Update();
 	void Draw();
 
-	void HandleInteraction(Pile *target);
-
   private:
 	PileManager pileManager;
 	Ui ui;

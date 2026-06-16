@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include "interactionManager.hpp"
 #include "types.hpp"
 #include <raylib.h>
 
@@ -29,7 +30,7 @@ void Game::Update() {
 			Pile *clickedPile = pileManager.GetPileAt(mousePos);
 
 			if (clickedPile != nullptr) {
-				HandleInteraction(clickedPile);
+				InteractionManager::Handle(selected, clickedPile, score);
 			}
 		}
 	}
@@ -74,63 +75,4 @@ void Game::Draw() {
 	if (!pileManager.GetPlayerPile(P_PLAYER).IsEmpty()) {
 		Ui::Draw(pileManager.GetPlayerPile(P_PLAYER).cards.back().value, score);
 	}
-}
-
-void Game::HandleInteraction(Pile *target) {
-	if (selected == nullptr) {
-		if (!target->cards.empty()) {
-			selected = target;
-		}
-		return;
-	}
-
-	if (selected == target) {
-		selected = nullptr;
-		return;
-	}
-
-	if (target->cards.empty()) {
-		Card &sel = selected->cards.back();
-
-		if (sel.type == CardType::PLAYER) {
-			selected = nullptr;
-			return;
-		}
-
-		target->cards.push_back(selected->cards.back());
-		selected->cards.pop_back();
-		selected = nullptr;
-		return;
-	}
-
-	Card &sel = selected->cards.back();
-	Card &tar = target->cards.back();
-
-	if (sel.type == CardType::SWORD && tar.type == CardType::ENEMY) {
-		if (sel.value >= tar.value) {
-			score += tar.value;
-
-			sel.value -= tar.value;
-
-			target->cards.pop_back();
-
-			if (sel.value <= 0) {
-				selected->cards.pop_back();
-			}
-		} else {
-			tar.value -= sel.value;
-			selected->cards.pop_back();
-		}
-	} else if (sel.type == CardType::PLAYER && tar.type == CardType::ENEMY) {
-		score += tar.value;
-
-		sel.value -= tar.value;
-		target->cards.pop_back();
-
-	} else if (sel.type == CardType::POTION && tar.type == CardType::PLAYER) {
-		tar.value += sel.value;
-		selected->cards.pop_back();
-	}
-
-	selected = nullptr;
 }
