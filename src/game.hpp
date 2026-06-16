@@ -1,8 +1,6 @@
 #pragma once
 
-#include "gameState.hpp"
-#include "pile.hpp"
-#include "types.hpp"
+#include "pileManager.hpp"
 #include "ui.hpp"
 #include <raylib.h>
 
@@ -19,20 +17,14 @@ class Game {
 	void Update();
 	void Draw();
 
-	void HandleInteraction(Pile *&selected, Pile &target, int &score);
-	Card GenerateRandomCard();
-	Card GenerateCard(const CardType type);
+	void HandleInteraction(Pile *target);
 
   private:
+	PileManager pileManager;
 	Ui ui;
 
 	int score;
 	bool gameOver;
 
-	GameState state;
-
-	Pile *selectedPile = nullptr;
-
-	int pileWidth = 150;
-	int pileHeight = 250;
+	Pile *selected = nullptr;
 };
