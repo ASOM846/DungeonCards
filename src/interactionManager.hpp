@@ -10,6 +10,8 @@ class InteractionManager {
 	static void ResolveCardInteraction(Pile *selected, Pile *target,
 									   int &score);
 
+	static void ResolveCardVsDiscardPile(Pile *selected, Pile *target);
+
 	static void ResolveWeaponVsEnemy(Pile *selected, Pile *target, Card &sel,
 									 Card &tar, int &score);
 	static void ResolvePlayerVsEnemy(Pile *target, Card &sel, Card &tar,

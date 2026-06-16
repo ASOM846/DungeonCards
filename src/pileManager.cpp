@@ -17,6 +17,8 @@ void PileManager::Init() {
 		playerPile.cards.clear();
 	}
 
+	discardPile[0].cards.clear();
+
 	int totalWidth = (D_COUNT * pileWidth) + ((D_COUNT - 1) * spacing);
 	int startX = (screenWidth - totalWidth) / 2;
 
@@ -27,6 +29,13 @@ void PileManager::Init() {
 		dungeonPiles[i].width = pileWidth;
 		dungeonPiles[i].height = pileHeight;
 	}
+
+	discardPile[0].position = {
+		.x = static_cast<float>(startX + totalWidth + spacing * 3),
+		.y = static_cast<float>(20.0f + offsetY) - 25.0f};
+	discardPile[0].width = pileWidth;
+	discardPile[0].height = pileHeight;
+	discardPile->isDiscardPile = true;
 
 	totalWidth = (P_COUNT * pileWidth) + ((P_COUNT - 1) * spacing);
 	startX = (screenWidth - totalWidth) / 2;
@@ -40,7 +49,7 @@ void PileManager::Init() {
 	}
 
 	for (auto &i : dungeonPiles) {
-		for (int j = 0; j < 32; j++) {
+		for (int j = 0; j < 6; j++) {
 			int roll = GetRandomValue(0, 99);
 			CardType selectedType;
 			Element selectedElement = Element::NONE;
@@ -100,6 +109,9 @@ void PileManager::DrawAll(const Pile *selectedPile) {
 		bool isSel = (&pile == selectedPile);
 		pile.Draw(isSel);
 	}
+
+	bool isDiscard = false;
+	discardPile[0].Draw(isDiscard);
 }
 
 Pile *PileManager::GetPileAt(Vector2 mousePos) {
@@ -117,6 +129,16 @@ Pile *PileManager::GetPileAt(Vector2 mousePos) {
 
 		if (CheckCollisionPointRec(mousePos, rect)) {
 			return &playerPile;
+		}
+	}
+
+	{
+		Rectangle rect = {discardPile[0].position.x, discardPile[0].position.y,
+						  static_cast<float>(pileWidth),
+						  static_cast<float>(pileHeight)};
+
+		if (CheckCollisionPointRec(mousePos, rect)) {
+			return &discardPile[0];
 		}
 	}
 
@@ -138,29 +160,22 @@ Card PileManager::GenerateCard(const CardType type, const Element element) {
 	switch (type) {
 	case CardType::ENEMY:
 		c.name = "MONSTER";
-
 		if (c.element == Element::ICE)
 			c.name = "ICE\nMONSTER";
 		if (c.element == Element::FIRE)
 			c.name = "FIRE\nMONSTER";
-
-		c.value = GetRandomValue(1, 8);
 		break;
 	case CardType::WEAPON:
 		c.name = "SWORD";
-		c.value = GetRandomValue(2, 5);
 		break;
 	case CardType::WAND:
 		if (c.element == Element::ICE)
 			c.name = "ICE WAND";
 		if (c.element == Element::FIRE)
 			c.name = "FIRE WAND";
-
-		c.value = GetRandomValue(4, 10);
 		break;
 	case CardType::POTION:
 		c.name = "POTION - HP";
-		c.value = GetRandomValue(2, 6);
 		break;
 	case CardType::PLAYER:
 	case CardType::COUNT:

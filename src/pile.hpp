@@ -15,6 +15,8 @@ struct Pile {
 	int width;
 	int height;
 
+	bool isDiscardPile = false;
+
 	[[nodiscard]] bool IsEmpty() const { return cards.empty(); }
 	[[nodiscard]] Card &Back() { return cards.back(); }
 

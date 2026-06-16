@@ -1,15 +1,23 @@
 #include "interactionManager.hpp"
 #include "types.hpp"
+#include <raylib.h>
 
 void InteractionManager::Handle(Pile *&selected, Pile *target, int &score) {
 	if (selected == nullptr) {
-		if (!target->cards.empty()) {
+		if (!target->cards.empty() && !target->isDiscardPile) {
 			selected = target;
 		}
 		return;
 	}
 
 	if (selected == target) {
+		selected = nullptr;
+		return;
+	}
+
+	if (target->isDiscardPile) {
+		TraceLog(LOG_INFO, "DISCARD PILE  CLICKED");
+		ResolveCardVsDiscardPile(selected, target);
 		selected = nullptr;
 		return;
 	}
@@ -51,6 +59,18 @@ void InteractionManager::ResolveCardInteraction(Pile *selected, Pile *target,
 		ResolveWandVsEnemy(selected, target, sel, tar, score);
 	} else {
 	}
+}
+
+void InteractionManager::ResolveCardVsDiscardPile(Pile *selected,
+												  Pile *target) {
+	Card &topCard = selected->Back();
+
+	if (selected->Back().type == CardType::PLAYER ||
+		selected->Back().type == CardType::ENEMY) {
+		return;
+	}
+	TraceLog(LOG_INFO, "karta skasowana");
+	selected->cards.pop_back();
 }
 
 void InteractionManager::ResolveWeaponVsEnemy(Pile *selected, Pile *target,

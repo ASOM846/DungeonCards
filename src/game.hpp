@@ -4,6 +4,12 @@
 #include "ui.hpp"
 #include <raylib.h>
 
+enum class GameState {
+	PLAYING,
+	WIN,
+	LOSE
+};
+
 class Game {
   public:
 	Game() = default;
@@ -21,8 +27,12 @@ class Game {
 	PileManager pileManager;
 	Ui ui;
 
+	GameState gameState;
+
 	int score;
-	bool gameOver;
 
 	Pile *selected = nullptr;
+
+	void DrawLose();
+	void DrawWin();
 };

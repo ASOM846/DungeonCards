@@ -13,10 +13,25 @@ void Pile::Draw(bool &isSelected) {
 
 		DrawText(countStr, countX, countY, countFontSize, DARKGRAY);
 	}
+
 	if (cards.empty()) {
 		DrawRectangleV(position,
 					   {static_cast<float>(width), static_cast<float>(height)},
 					   Color{40, 40, 40, 100});
+
+		if (isDiscardPile) {
+			auto xColor = Fade(DARKGRAY, 0.6f);
+			float thicknes = 5.0f;
+
+			float centerX = position.x + width / 2.0f;
+			float centerY = position.y + height / 2.0f;
+			float size = 20.0f;
+
+			DrawLineEx({centerX - size, centerY - size},
+					   {centerX + size, centerY + size}, thicknes, xColor);
+			DrawLineEx({centerX + size, centerY - size},
+					   {centerX - size, centerY + size}, thicknes, xColor);
+		}
 		return;
 	}
 
@@ -75,31 +90,34 @@ void Pile::Draw(bool &isSelected) {
 		break;
 	}
 	case CardType::WAND: {
-		DrawRectangle(centerX - 4, centerY - 10, 8, 45, LIGHTGRAY);
-		DrawRectangle(centerX - 8, centerY - 15, 16, 6, SKYBLUE);
-		DrawTriangle({centerX - 14, centerY - 30}, {centerX, centerY - 52},
-					 {centerX + 14, centerY - 30}, SKYBLUE);
-		DrawTriangle({centerX - 14, centerY - 30}, {centerX + 14, centerY - 30},
-					 {centerX, centerY - 8}, SKYBLUE);
-		DrawTriangle({centerX - 7, centerY - 30}, {centerX, centerY - 42},
-					 {centerX + 7, centerY - 30}, WHITE);
-		DrawTriangle({centerX - 7, centerY - 30}, {centerX + 7, centerY - 30},
-					 {centerX, centerY - 18}, WHITE);
+		if (topCard->element == Element::ICE) {
+			DrawRectangle(centerX - 4, centerY - 10, 8, 45, LIGHTGRAY);
+			DrawRectangle(centerX - 8, centerY - 15, 16, 6, SKYBLUE);
+			DrawTriangle({centerX - 14, centerY - 30}, {centerX, centerY - 52},
+						 {centerX + 14, centerY - 30}, SKYBLUE);
+			DrawTriangle({centerX - 14, centerY - 30},
+						 {centerX + 14, centerY - 30}, {centerX, centerY - 8},
+						 SKYBLUE);
+			DrawTriangle({centerX - 7, centerY - 30}, {centerX, centerY - 42},
+						 {centerX + 7, centerY - 30}, WHITE);
+			DrawTriangle({centerX - 7, centerY - 30},
+						 {centerX + 7, centerY - 30}, {centerX, centerY - 18},
+						 WHITE);
+		} else {
+			DrawRectangle(centerX - 4, centerY - 10, 8, 45, BROWN);
+			DrawRectangle(centerX - 8, centerY - 15, 16, 6, GOLD);
+			DrawCircle(centerX, centerY - 30, 16, RED);
+			DrawCircle(centerX, centerY - 26, 10, ORANGE);
+			DrawTriangle({centerX - 10, centerY - 25}, {centerX, centerY - 48},
+						 {centerX + 10, centerY - 25}, ORANGE);
+			DrawCircle(centerX, centerY - 24, 5, YELLOW);
+		}
 		break;
 	}
-	// case CardType::WAND_FIRE: {
-	// 	DrawRectangle(centerX - 4, centerY - 10, 8, 45, BROWN);
-	// 	DrawRectangle(centerX - 8, centerY - 15, 16, 6, GOLD);
-	// 	DrawCircle(centerX, centerY - 30, 16, RED);
-	// 	DrawCircle(centerX, centerY - 26, 10, ORANGE);
-	// 	DrawTriangle({centerX - 10, centerY - 25}, {centerX, centerY - 48},
-	// 				 {centerX + 10, centerY - 25}, ORANGE);
-	// 	DrawCircle(centerX, centerY - 24, 5, YELLOW);
-	// 	break;
-	// }
+
 	case CardType::POTION: {
 		DrawCircle(centerX, centerY + 15, 30, DARKGRAY);
-		DrawCircle(centerX, centerY + 15, 27, LIME);
+		DrawCircle(centerX, centerY + 15, 27, RED);
 		DrawRectangle(centerX - 8, centerY - 25, 16, 20, DARKGRAY);
 		DrawRectangle(centerX - 6, centerY - 23, 12, 22, LIGHTGRAY);
 		DrawRectangle(centerX - 10, centerY - 32, 20, 8, BROWN);

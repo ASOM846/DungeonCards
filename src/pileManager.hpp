@@ -23,6 +23,7 @@ class PileManager {
   private:
 	Pile playerPiles[P_COUNT];
 	Pile dungeonPiles[D_COUNT];
+	Pile discardPile[1];
 
 	int pileWidth = 150;
 	int pileHeight = 250;
