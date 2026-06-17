@@ -1,6 +1,10 @@
 #include "pileManager.hpp"
 #include "types.hpp"
+#include <algorithm>
+#include <random>
+#include <ratio>
 #include <raylib.h>
+#include <vector>
 
 void PileManager::Init() {
 	int spacing = 20;
@@ -48,40 +52,64 @@ void PileManager::Init() {
 		playerPiles[i].height = pileHeight;
 	}
 
+	struct CardTemplate {
+		CardType type;
+		Element element;
+	};
+
+	std::vector<CardTemplate> finalCardPool;
+
+	int cardsPerPile = 32;
+	int totalCardsNeeded = D_COUNT * cardsPerPile;
+
+	int packSize = 16;
+	int numPacks = totalCardsNeeded / packSize;
+
+	std::random_device rd;
+	std::mt19937 g(rd());
+
+	for (int pack = 0; pack < numPacks; pack++) {
+		std::vector<CardTemplate> microPack;
+
+		for (int i = 0; i < 5; i++)
+			microPack.push_back({CardType::ENEMY, Element::NONE});
+		for (int i = 0; i < 2; i++)
+			microPack.push_back({CardType::ENEMY, Element::ICE});
+		for (int i = 0; i < 2; i++)
+			microPack.push_back({CardType::ENEMY, Element::FIRE});
+
+		for (int i = 0; i < 3; i++)
+			microPack.push_back({CardType::POTION, Element::NONE});
+		for (int i = 0; i < 2; i++)
+			microPack.push_back({CardType::WEAPON, Element::NONE});
+		for (int i = 0; i < 1; i++)
+			microPack.push_back({CardType::SHIELD, Element::NONE});
+
+		Element wandElement =
+			(GetRandomValue(0, 1) == 0) ? Element::FIRE : Element::ICE;
+		microPack.push_back({CardType::WAND, wandElement});
+
+		std::shuffle(microPack.begin(), microPack.end(), g);
+
+		finalCardPool.insert(finalCardPool.end(), microPack.begin(),
+							 microPack.end());
+	}
+
+	int poolIndex = 0;
 	for (auto &i : dungeonPiles) {
-		for (int j = 0; j < 6; j++) {
-			int roll = GetRandomValue(0, 99);
-			CardType selectedType;
-			Element selectedElement = Element::NONE;
+		for (int j = 0; j < cardsPerPile; j++) {
+			if (poolIndex >= finalCardPool.size())
+				break;
 
-			if (roll < 35) {
-				selectedType = CardType::ENEMY;
-			} else if (roll < 47) {
-				selectedType = CardType::ENEMY;
-				selectedElement = Element::ICE;
-			} else if (roll < 59) {
-				selectedType = CardType::ENEMY;
-				selectedElement = Element::FIRE;
-			} else if (roll < 74) {
-				selectedType = CardType::POTION;
-			} else if (roll < 88) {
-				selectedType = CardType::WEAPON;
-			} else if (roll < 94) {
-				selectedType = CardType::WAND;
-				selectedElement = Element::FIRE;
-			} else {
-				selectedType = CardType::WAND;
-				selectedElement = Element::ICE;
-			}
+			CardTemplate currentTemplate = finalCardPool[poolIndex++];
+			Card card =
+				GenerateCard(currentTemplate.type, currentTemplate.element);
 
-			Card card = GenerateCard(selectedType, selectedElement);
+			int stage = ((31 - j) / 6) + 1;
 
-			int depth = 31 - j;
-			int stage = (depth / 6) + 1;
-
-			if (selectedType == CardType::ENEMY) {
+			if (card.type == CardType::ENEMY) {
 				card.value = GetRandomValue(stage, stage + 2);
-			} else if (selectedType == CardType::POTION) {
+			} else if (card.type == CardType::POTION) {
 				card.value = GetRandomValue(2, stage + 4);
 			} else {
 				card.value = GetRandomValue(stage + 1, stage + 3);
@@ -94,6 +122,11 @@ void PileManager::Init() {
 	Card player = {.name = "PLAYER", .value = 10, .type = CardType::PLAYER};
 	Card hpPotion = {.name = "HP POTION", .value = 4, .type = CardType::POTION};
 	Card sword = {.name = "SWORD", .value = 8, .type = CardType::WEAPON};
+	Card shield = {.name = "SHIELD",
+				   .value = 10,
+				   .type = CardType::SHIELD,
+				   .element = Element::NONE};
+
 	playerPiles[P_PLAYER].cards.push_back(player);
 	playerPiles[P_RIGHT].cards.push_back(sword);
 	playerPiles[P_BACKPACK].cards.push_back(hpPotion);
@@ -173,6 +206,9 @@ Card PileManager::GenerateCard(const CardType type, const Element element) {
 			c.name = "ICE WAND";
 		if (c.element == Element::FIRE)
 			c.name = "FIRE WAND";
+		break;
+	case CardType::SHIELD:
+		c.name = "SHIELD";
 		break;
 	case CardType::POTION:
 		c.name = "POTION - HP";

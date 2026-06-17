@@ -36,7 +36,9 @@ void Game::Update() {
 			Pile *clickedPile = pileManager.GetPileAt(mousePos);
 
 			if (clickedPile != nullptr) {
-				InteractionManager::Handle(selected, clickedPile, score);
+				InteractionManager::Handle(
+					selected, clickedPile, score,
+					&pileManager.GetPlayerPile(P_PLAYER));
 			}
 		}
 	}

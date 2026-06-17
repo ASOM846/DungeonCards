@@ -114,7 +114,23 @@ void Pile::Draw(bool &isSelected) {
 		}
 		break;
 	}
+	case CardType::SHIELD: {
+		DrawRectangle(centerX - 26, centerY - 35, 52, 35, DARKGRAY);
+		DrawTriangle({centerX - 26, centerY}, {centerX, centerY + 40},
+					 {centerX + 26, centerY}, DARKGRAY);
 
+		DrawRectangle(centerX - 21, centerY - 32, 42, 32, BROWN);
+		DrawTriangle({centerX - 21, centerY}, {centerX, centerY + 34},
+					 {centerX + 21, centerY}, BROWN);
+
+		DrawRectangle(centerX - 4, centerY - 32, 8, 45, GRAY);
+		DrawTriangle({centerX - 4, centerY + 13}, {centerX, centerY + 34},
+					 {centerX + 4, centerY + 13}, GRAY);
+
+		DrawCircle(centerX, centerY - 5, 8, DARKGRAY);
+		DrawCircle(centerX, centerY - 5, 5, LIGHTGRAY);
+		break;
+	}
 	case CardType::POTION: {
 		DrawCircle(centerX, centerY + 15, 30, DARKGRAY);
 		DrawCircle(centerX, centerY + 15, 27, RED);

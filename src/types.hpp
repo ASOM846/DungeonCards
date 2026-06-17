@@ -15,6 +15,7 @@ enum class CardType {
 	ENEMY,
 	WEAPON,
 	WAND,
+	SHIELD,
 	POTION,
 	PLAYER,
 	COUNT
