@@ -1,4 +1,5 @@
 #include "pileManager.hpp"
+#include "interactionManager.hpp"
 #include "types.hpp"
 #include <algorithm>
 #include <random>
@@ -16,6 +17,8 @@ void PileManager::Reset() {
 	}
 
 	discardPile[0].cards.clear();
+
+	masterDeck.clear();
 }
 
 void PileManager::Init() {
@@ -37,6 +40,7 @@ void PileManager::Init() {
 		dungeonPiles[i].width = pileWidth;
 		dungeonPiles[i].height = pileHeight;
 		dungeonPiles[i].isDiscardPile = false;
+		dungeonPiles[i].isDungeonPile = true;
 	}
 
 	discardPile[0].position = {
@@ -80,16 +84,24 @@ void PileManager::Init() {
 		for (int i = 0; i < 2; i++)
 			finalCardPool.push_back({CardType::ENEMY, Element::FIRE});
 
-		for (int i = 0; i < 3; i++)
-			finalCardPool.push_back({CardType::POTION, Element::NONE});
 		for (int i = 0; i < 2; i++)
-			finalCardPool.push_back({CardType::WEAPON, Element::NONE});
+			finalCardPool.push_back({CardType::POTION, Element::NONE});
+
+		for (int i = 0; i < 2; i++) {
+			if (GetRandomValue(1, 100) <= 30) {
+				finalCardPool.push_back({CardType::WEAPON, Element::LIFESTEAL});
+			} else {
+				finalCardPool.push_back({CardType::WEAPON, Element::NONE});
+			}
+		}
 		for (int i = 0; i < 1; i++)
 			finalCardPool.push_back({CardType::SHIELD, Element::NONE});
 
 		Element wandElement =
 			(GetRandomValue(0, 1) == 0) ? Element::FIRE : Element::ICE;
 		finalCardPool.push_back({CardType::WAND, wandElement});
+
+		finalCardPool.push_back({CardType::COIN, Element::NONE});
 	}
 
 	std::random_device rd;
@@ -103,6 +115,8 @@ void PileManager::Init() {
 			card.value = GetRandomValue(2, 10);
 		else if (card.type == CardType::POTION)
 			card.value = GetRandomValue(2, 10);
+		else if (card.type == CardType::COIN)
+			card.value = GetRandomValue(1, 12);
 		else
 			card.value = GetRandomValue(3, 9);
 
@@ -115,7 +129,12 @@ void PileManager::Init() {
 
 	Card player = {.name = "PLAYER", .value = 10, .type = CardType::PLAYER};
 	Card hpPotion = {.name = "HP POTION", .value = 4, .type = CardType::POTION};
-	Card sword = {.name = "SWORD", .value = 8, .type = CardType::WEAPON};
+
+	Card sword = {.name = "LIFESTEAL",
+				  .value = 8,
+				  .type = CardType::WEAPON,
+				  .element = Element::LIFESTEAL};
+
 	Card shield = {.name = "SHIELD",
 				   .value = 10,
 				   .type = CardType::SHIELD,
@@ -126,15 +145,19 @@ void PileManager::Init() {
 	playerPiles[P_BACKPACK].cards.push_back(hpPotion);
 }
 
-void PileManager::DrawAll(const Pile *selectedPile) {
+void PileManager::DrawAll(Pile *selectedPile) {
 	for (auto &pile : dungeonPiles) {
 		bool isSel = (&pile == selectedPile);
-		pile.Draw(isSel);
+		bool isHigh = InteractionManager::ShouldHighlight(selectedPile, &pile);
+
+		pile.Draw(isSel, isHigh);
 	}
 
 	for (auto &pile : playerPiles) {
 		bool isSel = (&pile == selectedPile);
-		pile.Draw(isSel);
+		bool isHigh = InteractionManager::ShouldHighlight(selectedPile, &pile);
+
+		pile.Draw(isSel, isHigh);
 	}
 
 	bool isDiscard = false;
@@ -212,6 +235,8 @@ Card PileManager::GenerateCard(const CardType type, const Element element) {
 		break;
 	case CardType::WEAPON:
 		c.name = "SWORD";
+		if (c.element == Element::LIFESTEAL)
+			c.name = "LIFESTEAL";
 		break;
 	case CardType::WAND:
 		if (c.element == Element::ICE)
@@ -225,6 +250,8 @@ Card PileManager::GenerateCard(const CardType type, const Element element) {
 	case CardType::POTION:
 		c.name = "POTION - HP";
 		break;
+	case CardType::COIN:
+		c.name = "COIN";
 	case CardType::PLAYER:
 	case CardType::COUNT:
 		break;

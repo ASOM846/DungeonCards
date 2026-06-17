@@ -2,18 +2,7 @@
 #include "types.hpp"
 #include <raylib.h>
 
-void Pile::Draw(bool &isSelected) {
-	if (cards.size() > 1) {
-		const char *countStr =
-			TextFormat("Cards: %d", static_cast<int>(cards.size()));
-		int countFontSize = 20;
-		int countTextWidth = MeasureText(countStr, countFontSize);
-		int countX = position.x + width / 2 - countTextWidth / 2;
-		int countY = position.y + height + 10;
-
-		DrawText(countStr, countX, countY, countFontSize, DARKGRAY);
-	}
-
+void Pile::Draw(bool isSelected, bool isHighlited) {
 	if (cards.empty()) {
 		DrawRectangleV(position,
 					   {static_cast<float>(width), static_cast<float>(height)},
@@ -35,21 +24,6 @@ void Pile::Draw(bool &isSelected) {
 		return;
 	}
 
-	int extraCards = cards.size() - 1;
-	if (extraCards > 2)
-		extraCards = 2;
-
-	for (int i = extraCards; i > 0; i--) {
-		float shiftY = -i * 12;
-		Vector2 stackPos = {position.x, position.y + shiftY};
-		DrawRectangleV(stackPos,
-					   {static_cast<float>(width), static_cast<float>(height)},
-					   WHITE);
-		DrawRectangleLinesEx(
-			{stackPos.x, stackPos.y, (float)width, (float)height}, 2,
-			LIGHTGRAY);
-	}
-
 	DrawRectangleV(position,
 				   {static_cast<float>(width), static_cast<float>(height)},
 				   WHITE);
@@ -62,6 +36,10 @@ void Pile::Draw(bool &isSelected) {
 			{position.x, position.y, (float)width, (float)height}, 4, ORANGE);
 	}
 
+	if (isHighlited) {
+		DrawRectangleLinesEx(
+			{position.x, position.y, (float)width, (float)height}, 4, GREEN);
+	}
 	Card *topCard = &cards.back();
 	int fontSize = 20;
 
@@ -138,6 +116,10 @@ void Pile::Draw(bool &isSelected) {
 		DrawRectangle(centerX - 6, centerY - 23, 12, 22, LIGHTGRAY);
 		DrawRectangle(centerX - 10, centerY - 32, 20, 8, BROWN);
 		DrawCircle(centerX - 10, centerY + 5, 4, WHITE);
+		break;
+	}
+	case CardType::COIN: {
+		DrawCircle(centerX, centerY + 15, 30, GOLD);
 		break;
 	}
 	case CardType::PLAYER: {

@@ -17,10 +17,12 @@ struct Pile {
 
 	bool isDiscardPile = false;
 
+	bool isDungeonPile = false;
+
 	[[nodiscard]] bool IsEmpty() const { return cards.empty(); }
 	[[nodiscard]] Card &Back() { return cards.back(); }
 
-	void Draw(bool &isSelected);
+	void Draw(bool isSelected, bool isHighlited = false);
 
 	void DrawEnemy(const int &centerX, const int &centerY, Color color);
 };

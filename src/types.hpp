@@ -8,6 +8,7 @@ enum class Element {
 	NONE,
 	FIRE,
 	ICE,
+	LIFESTEAL,
 	COUNT
 };
 
@@ -18,6 +19,7 @@ enum class CardType {
 	SHIELD,
 	POTION,
 	PLAYER,
+	COIN,
 	COUNT
 };
 
@@ -40,6 +42,7 @@ enum DungeonSlot {
 struct Card {
 	std::string name;
 	int value;
+	int maxValue;
 	CardType type;
 	Element element;
 };

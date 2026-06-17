@@ -53,7 +53,6 @@ void Game::Update() {
 }
 
 void Game::Draw() {
-
 	pileManager.DrawAll(selected);
 
 	if (gameState == GameState::LOSE) {
@@ -65,7 +64,8 @@ void Game::Draw() {
 	}
 
 	if (!pileManager.GetPlayerPile(P_PLAYER).IsEmpty()) {
-		Ui::Draw(pileManager.GetPlayerPile(P_PLAYER).cards.back().value, score);
+		Ui::Draw(pileManager.GetPlayerPile(P_PLAYER).cards.back().value, score,
+				 pileManager.GetMasterDeckSize());
 	}
 }
 

@@ -3,6 +3,8 @@
 #include "pile.hpp"
 class InteractionManager {
   public:
+	static bool ShouldHighlight(Pile *selected, Pile *target);
+
 	static void Handle(Pile *&selected, Pile *target, int &score,
 					   Pile *playerPile);
 
@@ -15,7 +17,7 @@ class InteractionManager {
 										 int &score);
 
 	static void ResolveWeaponVsEnemy(Pile *selected, Pile *target, Card &sel,
-									 Card &tar, int &score);
+									 Card &tar, int &score, Pile *playerPile);
 	static void ResolvePlayerVsEnemy(Pile *target, Card &sel, Card &tar,
 									 int &score);
 	static void ResolveEnemyVsShield(Pile *selected, Pile *target, Card &sel,
@@ -24,4 +26,6 @@ class InteractionManager {
 									  Card &tar, int &score);
 	static void ResolveWandVsEnemy(Pile *selected, Pile *target, Card &sel,
 								   Card &tar, int &score);
+	static void ResolveCoinVsPlayer(Pile *selected, Pile *target, Card &sel,
+									Card &tar, int &score);
 };

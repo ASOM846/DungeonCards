@@ -11,7 +11,7 @@ class PileManager {
 	void Reset();
 	void Init();
 
-	void DrawAll(const Pile *selectedPile);
+	void DrawAll(Pile *selectedPile);
 	Pile *GetPileAt(Vector2 mousePos);
 
 	void RefillRoomIfNeeded();
@@ -21,6 +21,8 @@ class PileManager {
 
 	Card GenerateRandomCard();
 	Card GenerateCard(const CardType type, const Element element);
+
+	[[nodiscard]] int GetMasterDeckSize() { return masterDeck.size(); }
 
   private:
 	std::vector<Card> masterDeck;
