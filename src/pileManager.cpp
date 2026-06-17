@@ -6,13 +6,7 @@
 #include <raylib.h>
 #include <vector>
 
-void PileManager::Init() {
-	int spacing = 20;
-	int offsetY = 100;
-
-	int screenWidth = GetScreenWidth();
-	int screenHeight = GetScreenHeight();
-
+void PileManager::Reset() {
 	for (auto &dungeonPile : dungeonPiles) {
 		dungeonPile.cards.clear();
 	}
@@ -22,6 +16,16 @@ void PileManager::Init() {
 	}
 
 	discardPile[0].cards.clear();
+}
+
+void PileManager::Init() {
+	int spacing = 20;
+	int offsetY = 100;
+
+	int screenWidth = GetScreenWidth();
+	int screenHeight = GetScreenHeight();
+
+	Reset();
 
 	int totalWidth = (D_COUNT * pileWidth) + ((D_COUNT - 1) * spacing);
 	int startX = (screenWidth - totalWidth) / 2;
@@ -32,6 +36,7 @@ void PileManager::Init() {
 			.y = 20.0f + offsetY};
 		dungeonPiles[i].width = pileWidth;
 		dungeonPiles[i].height = pileHeight;
+		dungeonPiles[i].isDiscardPile = false;
 	}
 
 	discardPile[0].position = {
@@ -50,8 +55,10 @@ void PileManager::Init() {
 			.y = 310.0f + offsetY};
 		playerPiles[i].width = pileWidth;
 		playerPiles[i].height = pileHeight;
+		playerPiles[i].isDiscardPile = false;
 	}
 
+	// losowanie master decku
 	struct CardTemplate {
 		CardType type;
 		Element element;
@@ -59,65 +66,52 @@ void PileManager::Init() {
 
 	std::vector<CardTemplate> finalCardPool;
 
-	int cardsPerPile = 32;
-	int totalCardsNeeded = D_COUNT * cardsPerPile;
+	int totalCardsNeeded = 72;
 
 	int packSize = 16;
 	int numPacks = totalCardsNeeded / packSize;
 
-	std::random_device rd;
-	std::mt19937 g(rd());
-
 	for (int pack = 0; pack < numPacks; pack++) {
-		std::vector<CardTemplate> microPack;
 
 		for (int i = 0; i < 5; i++)
-			microPack.push_back({CardType::ENEMY, Element::NONE});
+			finalCardPool.push_back({CardType::ENEMY, Element::NONE});
 		for (int i = 0; i < 2; i++)
-			microPack.push_back({CardType::ENEMY, Element::ICE});
+			finalCardPool.push_back({CardType::ENEMY, Element::ICE});
 		for (int i = 0; i < 2; i++)
-			microPack.push_back({CardType::ENEMY, Element::FIRE});
+			finalCardPool.push_back({CardType::ENEMY, Element::FIRE});
 
 		for (int i = 0; i < 3; i++)
-			microPack.push_back({CardType::POTION, Element::NONE});
+			finalCardPool.push_back({CardType::POTION, Element::NONE});
 		for (int i = 0; i < 2; i++)
-			microPack.push_back({CardType::WEAPON, Element::NONE});
+			finalCardPool.push_back({CardType::WEAPON, Element::NONE});
 		for (int i = 0; i < 1; i++)
-			microPack.push_back({CardType::SHIELD, Element::NONE});
+			finalCardPool.push_back({CardType::SHIELD, Element::NONE});
 
 		Element wandElement =
 			(GetRandomValue(0, 1) == 0) ? Element::FIRE : Element::ICE;
-		microPack.push_back({CardType::WAND, wandElement});
-
-		std::shuffle(microPack.begin(), microPack.end(), g);
-
-		finalCardPool.insert(finalCardPool.end(), microPack.begin(),
-							 microPack.end());
+		finalCardPool.push_back({CardType::WAND, wandElement});
 	}
 
-	int poolIndex = 0;
-	for (auto &i : dungeonPiles) {
-		for (int j = 0; j < cardsPerPile; j++) {
-			if (poolIndex >= finalCardPool.size())
-				break;
+	std::random_device rd;
+	std::mt19937 g(rd());
+	std::shuffle(finalCardPool.begin(), finalCardPool.end(), g);
 
-			CardTemplate currentTemplate = finalCardPool[poolIndex++];
-			Card card =
-				GenerateCard(currentTemplate.type, currentTemplate.element);
+	for (auto &tmp : finalCardPool) {
+		Card card = GenerateCard(tmp.type, tmp.element);
 
-			int stage = ((31 - j) / 6) + 1;
+		if (card.type == CardType::ENEMY)
+			card.value = GetRandomValue(2, 10);
+		else if (card.type == CardType::POTION)
+			card.value = GetRandomValue(2, 10);
+		else
+			card.value = GetRandomValue(3, 9);
 
-			if (card.type == CardType::ENEMY) {
-				card.value = GetRandomValue(stage, stage + 2);
-			} else if (card.type == CardType::POTION) {
-				card.value = GetRandomValue(2, stage + 4);
-			} else {
-				card.value = GetRandomValue(stage + 1, stage + 3);
-			}
-
-			i.cards.push_back(card);
-		}
+		masterDeck.push_back(card);
 	}
+
+	Card monster = {.name = "MOnSTER", .value = 5, .type = CardType::ENEMY};
+
+	dungeonPiles[D_ONE].cards.push_back(monster);
 
 	Card player = {.name = "PLAYER", .value = 10, .type = CardType::PLAYER};
 	Card hpPotion = {.name = "HP POTION", .value = 4, .type = CardType::POTION};
@@ -176,6 +170,24 @@ Pile *PileManager::GetPileAt(Vector2 mousePos) {
 	}
 
 	return nullptr;
+}
+
+void PileManager::RefillRoomIfNeeded() {
+	int activeCards = 0;
+	for (const auto &dungeonPile : dungeonPiles) {
+		if (!dungeonPile.IsEmpty()) {
+			activeCards++;
+		}
+	}
+
+	if (activeCards <= 1) {
+		for (auto &dungeonPile : dungeonPiles) {
+			if (dungeonPile.IsEmpty() && !masterDeck.empty()) {
+				dungeonPile.cards.push_back(masterDeck.back());
+				masterDeck.pop_back();
+			}
+		}
+	}
 }
 
 Card PileManager::GenerateRandomCard() {

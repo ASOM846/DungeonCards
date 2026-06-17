@@ -33,6 +33,7 @@ enum DungeonSlot {
 	D_ONE,
 	D_TWO,
 	D_THREE,
+	D_FOUR,
 	D_COUNT
 };
 

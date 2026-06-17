@@ -26,11 +26,13 @@ void Game::Update() {
 
 	if (pileManager.GetDungeonPile(D_ONE).IsEmpty() &&
 		pileManager.GetDungeonPile(D_TWO).IsEmpty() &&
-		pileManager.GetDungeonPile(D_THREE).IsEmpty()) {
+		pileManager.GetDungeonPile(D_THREE).IsEmpty() &&
+		pileManager.GetDungeonPile(D_FOUR).IsEmpty()) {
 		gameState = GameState::WIN;
 	}
 
 	if (gameState == GameState::PLAYING) {
+		pileManager.RefillRoomIfNeeded();
 		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
 			Vector2 mousePos = GetMousePosition();
 			Pile *clickedPile = pileManager.GetPileAt(mousePos);
