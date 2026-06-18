@@ -42,10 +42,14 @@ void Pile::Draw(TextureManager &tm, bool isSelected, bool isHighlited) {
 
 	const Texture2D &texture = tm.get(cards.back().textureId);
 
-	float scale = 3.0f;
+	float scale = 3.0F;
 	if (cards.back().type == CardType::ENEMY ||
-		cards.back().type == CardType::PLAYER)
-		scale = 5.0f;
+		cards.back().type == CardType::PLAYER) {
+		scale = 5.0F;
+	}
+	if (cards.back().textureId == TextureId::ItemShield) {
+		scale = 0.5F;
+	}
 
 	float drawX = centerX - (texture.width * scale) / 2.0f;
 	float drawY = centerY - (texture.height * scale) / 2.0f;
@@ -58,7 +62,7 @@ void Pile::DrawCardBackground() {
 	float centerX = position.x + width / 2.0f;
 	float centerY = position.y + height / 2.0f;
 
-	const auto shadow = Color{0, 0, 0, 60};
+	const auto shadow = Color{0, 0, 0, 100};
 	const auto darkWood = Color{60, 30, 15, 255};
 	const auto parchment = Color{220, 200, 170, 255};
 	const auto goldAccent = Color{180, 130, 40, 255};

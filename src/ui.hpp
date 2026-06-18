@@ -1,6 +1,7 @@
 #pragma once
 #include "pile.hpp"
 #include "types.hpp"
+#include <raylib.h>
 
 class Ui {
   public:
@@ -10,4 +11,6 @@ class Ui {
 	static void Draw(const int &hp, const int &score,
 					 const int &cardsRemaining);
 	static void DrawHoveredCardInfo(const Card *card);
+
+	static void DrawCardBackground(Rectangle &dst, bool isCard);
 };

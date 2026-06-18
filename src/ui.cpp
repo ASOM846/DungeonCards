@@ -25,3 +25,5 @@ void Ui::DrawHoveredCardInfo(const Card *card) {
 	DrawText(cardDsc, GetScreenWidth() - width - 50, GetScreenHeight() - 40,
 			 fontSize, RED);
 }
+
+void Ui::DrawCardBackground(Rectangle &dst, bool isCard) {}

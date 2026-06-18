@@ -7,6 +7,7 @@
 #include <random>
 #include <ratio>
 #include <raylib.h>
+#include <sys/types.h>
 #include <vector>
 
 void PileManager::Reset() {
@@ -134,7 +135,7 @@ void PileManager::Init() {
 	Card sword = {.name = "SWORD",
 				  .value = 5,
 				  .type = CardType::WEAPON,
-				  .textureId = TextureId::WeaponSword};
+				  .textureId = TextureId::ItemShield};
 
 	dungeonPiles[D_ONE].cards.push_back(sword);
 
@@ -231,10 +232,9 @@ void PileManager::RefillRoomIfNeeded() {
 
 TextureId PileManager::GetRandomMonsterTexture() {
 	static const std::vector<TextureId> textures = {
-		TextureId::Enemy1,
-		TextureId::Enemy2,
-		TextureId::Enemy3,
-		TextureId::Enemy4,
+		TextureId::Enemy1, TextureId::Enemy2, TextureId::Enemy3,
+		TextureId::Enemy4, TextureId::Enemy5, TextureId::Enemy6,
+		TextureId::Enemy7, TextureId::Enemy8,
 	};
 
 	int seed = GetRandomValue(0, textures.size() - 1);
@@ -347,6 +347,7 @@ Card PileManager::GenerateCardData(const CardType type, const Element element) {
 		break;
 	case CardType::COIN:
 		c.name = "COIN";
+		c.textureId = TextureId::Coin;
 		break;
 	case CardType::PLAYER:
 	case CardType::COUNT:

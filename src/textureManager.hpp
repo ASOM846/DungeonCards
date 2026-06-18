@@ -6,11 +6,16 @@
 #include <unordered_map>
 
 enum class TextureId {
+	Coin,
 	Knight1,
 	Enemy1,
 	Enemy2,
 	Enemy3,
 	Enemy4,
+	Enemy5,
+	Enemy6,
+	Enemy7,
+	Enemy8,
 	EnemyFire,
 	EnemyIce,
 	ItemShield,
@@ -23,6 +28,8 @@ enum class TextureId {
 	WeaponGoldenSword,
 	WeaponHammer,
 	WeaponSword,
+	Background,
+	Vinete,
 };
 
 class TextureManager {
@@ -39,11 +46,16 @@ class TextureManager {
 	}
 
 	void loadAll() {
+		load(TextureId::Coin, "assets/coin.png");
 		load(TextureId::Knight1, "assets/knight1.png");
 		load(TextureId::Enemy1, "assets/enemy1.png");
 		load(TextureId::Enemy2, "assets/enemy2.png");
 		load(TextureId::Enemy3, "assets/enemy3.png");
 		load(TextureId::Enemy4, "assets/enemy4.png");
+		load(TextureId::Enemy5, "assets/enemy5.png");
+		load(TextureId::Enemy6, "assets/enemy6.png");
+		load(TextureId::Enemy7, "assets/enemy7.png");
+		load(TextureId::Enemy8, "assets/enemy8.png");
 		load(TextureId::EnemyFire, "assets/enemyFire.png");
 		load(TextureId::EnemyIce, "assets/enemyIce.png");
 		load(TextureId::ItemShield, "assets/itemShield.png");
@@ -56,6 +68,8 @@ class TextureManager {
 		load(TextureId::WeaponGoldenSword, "assets/weaponGoldenSword.png");
 		load(TextureId::WeaponHammer, "assets/weaponHammer.png");
 		load(TextureId::WeaponSword, "assets/weaponSword.png");
+		load(TextureId::Background, "assets/bcg4.png");
+		load(TextureId::Vinete, "assets/vinete2.png");
 	}
 
 	void load(TextureId id, const char *path) {
