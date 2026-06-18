@@ -58,7 +58,6 @@ void Pile::Draw(TextureManager &tm, bool isSelected, bool isHighlited) {
 }
 
 void Pile::DrawCardBackground() {
-
 	float centerX = position.x + width / 2.0f;
 	float centerY = position.y + height / 2.0f;
 
@@ -105,6 +104,7 @@ void Pile::DrawCardBackground() {
 	DrawCircle(tl.x, tl.y, niteRadius, darkWood);
 	DrawCircle(tr.x, tr.y, niteRadius, darkWood);
 	DrawCircle(bl.x, bl.y, niteRadius, darkWood);
+	DrawCircle(br.x, br.y, niteRadius, darkWood);
 
 	if (IsEmpty()) {
 		return;

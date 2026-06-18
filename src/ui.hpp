@@ -12,5 +12,5 @@ class Ui {
 					 const int &cardsRemaining);
 	static void DrawHoveredCardInfo(const Card *card);
 
-	static void DrawCardBackground(Rectangle &dst, bool isCard);
+	static void DrawMessageBox(const Card *card);
 };

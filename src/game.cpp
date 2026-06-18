@@ -82,7 +82,7 @@ void Game::Draw() {
 				 pileManager.GetMasterDeckSize());
 	}
 
-	Ui::DrawHoveredCardInfo(pileManager.GetCardAt(GetMousePosition()));
+	Ui::DrawMessageBox(pileManager.GetCardAt(GetMousePosition()));
 }
 
 void Game::DrawLose() {
