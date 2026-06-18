@@ -1,20 +1,24 @@
 #pragma once
 
+#include "textureManager.hpp"
 #include <raylib.h>
 #include <string>
-#include <vector>
 
 enum class Element {
 	NONE,
 	FIRE,
 	ICE,
 	LIFESTEAL,
+	WARHAMMER, // back to master deck
+	ESCAPE,	   // redraw 4 cards
+	SACRIFICE, // deal damage equal to points remaining to max heal
 	COUNT
 };
 
 enum class CardType {
 	ENEMY,
 	WEAPON,
+	SPELL,
 	WAND,
 	SHIELD,
 	POTION,
@@ -41,8 +45,23 @@ enum DungeonSlot {
 
 struct Card {
 	std::string name;
+	std::string description;
 	int value;
-	int maxValue;
+	int maxValue = -1;
 	CardType type;
 	Element element;
+
+	TextureId textureId;
+
+	void IncreaseVal(int val) {
+		value += val;
+
+		if (maxValue == -1) {
+			return;
+		}
+
+		if (value >= maxValue) {
+			value = maxValue;
+		}
+	}
 };

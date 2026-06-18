@@ -22,7 +22,9 @@ struct Pile {
 	[[nodiscard]] bool IsEmpty() const { return cards.empty(); }
 	[[nodiscard]] Card &Back() { return cards.back(); }
 
-	void Draw(bool isSelected, bool isHighlited = false);
+	void Draw(TextureManager &tm, bool isSelected, bool isHighlited = false);
+
+	void DrawCardBackground();
 
 	void DrawEnemy(const int &centerX, const int &centerY, Color color);
 };

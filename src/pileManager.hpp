@@ -1,7 +1,9 @@
 #pragma once
 
 #include "pile.hpp"
+#include "textureManager.hpp"
 #include "types.hpp"
+#include <raylib.h>
 
 class PileManager {
   public:
@@ -11,7 +13,11 @@ class PileManager {
 	void Reset();
 	void Init();
 
-	void DrawAll(Pile *selectedPile);
+	void UpdatePiles();
+	void DrawAll(TextureManager &tm, Pile *selectedPile);
+
+	Card *GetCardAt(Vector2 mousePos);
+
 	Pile *GetPileAt(Vector2 mousePos);
 
 	void RefillRoomIfNeeded();
@@ -19,10 +25,14 @@ class PileManager {
 	Pile &GetPlayerPile(PlayerSlot slot) { return playerPiles[slot]; }
 	Pile &GetDungeonPile(DungeonSlot slot) { return dungeonPiles[slot]; }
 
-	Card GenerateRandomCard();
-	Card GenerateCard(const CardType type, const Element element);
+	Pile *GetDungeonPiles() { return dungeonPiles; }
+
+	TextureId GetRandomMonsterTexture();
+	Card GetRandomSpell();
+	Card GenerateCardData(const CardType type, const Element element);
 
 	[[nodiscard]] int GetMasterDeckSize() { return masterDeck.size(); }
+	[[nodiscard]] std::vector<Card> &GetMasterDeck() { return masterDeck; }
 
   private:
 	std::vector<Card> masterDeck;

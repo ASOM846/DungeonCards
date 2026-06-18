@@ -27,11 +27,17 @@ bool InteractionManager::ShouldHighlight(Pile *selected, Pile *target) {
 		return (tarType == CardType::PLAYER);
 	}
 
+	Element selELement = selected->Back().element;
+
+	if (selType == CardType::SPELL) {
+		return (tarType == CardType::ENEMY);
+	}
 	return false;
 }
 
 void InteractionManager::Handle(Pile *&selected, Pile *target, int &score,
-								Pile *playerPile) {
+								Pile *playerPile, Pile *dungeonPiles,
+								std::vector<Card> &masterDeck) {
 	if (selected == nullptr) {
 		if (!target->cards.empty() && !target->isDiscardPile) {
 			selected = target;
@@ -71,7 +77,8 @@ void InteractionManager::Handle(Pile *&selected, Pile *target, int &score,
 		return;
 	}
 
-	ResolveCardInteraction(selected, target, score, playerPile);
+	ResolveCardInteraction(selected, target, score, playerPile, masterDeck,
+						   dungeonPiles);
 	selected = nullptr;
 }
 
@@ -88,12 +95,15 @@ void InteractionManager::HandleEmptyTargetMove(Pile *selected, Pile *target) {
 }
 
 void InteractionManager::ResolveCardInteraction(Pile *selected, Pile *target,
-												int &score, Pile *playerPile) {
+												int &score, Pile *playerPile,
+												std::vector<Card> &masterDeck,
+												Pile *dungeonPiles) {
 	Card &sel = selected->cards.back();
 	Card &tar = target->cards.back();
 
 	if (sel.type == CardType::WEAPON && tar.type == CardType::ENEMY) {
-		ResolveWeaponVsEnemy(selected, target, sel, tar, score, playerPile);
+		ResolveWeaponVsEnemy(selected, target, sel, tar, score, playerPile,
+							 masterDeck);
 	} else if (sel.type == CardType::ENEMY && tar.type == CardType::PLAYER) {
 		ResolvePlayerVsEnemy(selected, tar, sel, score);
 	} else if (sel.type == CardType::ENEMY && tar.type == CardType::SHIELD) {
@@ -104,6 +114,9 @@ void InteractionManager::ResolveCardInteraction(Pile *selected, Pile *target,
 		ResolveWandVsEnemy(selected, target, sel, tar, score);
 	} else if (sel.type == CardType::COIN && tar.type == CardType::PLAYER) {
 		ResolveCoinVsPlayer(selected, target, sel, tar, score);
+	} else if (sel.type == CardType::SPELL && tar.type == CardType::ENEMY) {
+		ResolveSpellVsEnemy(selected, target, sel, tar, score, playerPile,
+							masterDeck, dungeonPiles);
 	} else {
 	}
 }
@@ -122,17 +135,9 @@ void InteractionManager::ResolveCardVsDiscardPile(Pile *selected, Pile *target,
 
 void InteractionManager::ResolveWeaponVsEnemy(Pile *selected, Pile *target,
 											  Card &sel, Card &tar, int &score,
-											  Pile *playerPile) {
-
-	bool isLifesteal = false;
-	if (sel.element == Element::LIFESTEAL) {
-		isLifesteal = true;
-	}
-
-	int dmgDealt = 0;
-
+											  Pile *playerPile,
+											  std::vector<Card> &masterDeck) {
 	if (sel.value >= tar.value) {
-		dmgDealt = tar.value;
 		score += tar.value;
 
 		sel.value -= tar.value;
@@ -143,13 +148,8 @@ void InteractionManager::ResolveWeaponVsEnemy(Pile *selected, Pile *target,
 			selected->cards.pop_back();
 		}
 	} else {
-		dmgDealt = sel.value;
 		tar.value -= sel.value;
 		selected->cards.pop_back();
-	}
-
-	if (isLifesteal && playerPile != nullptr && !playerPile->IsEmpty()) {
-		playerPile->Back().value += dmgDealt;
 	}
 }
 
@@ -187,7 +187,7 @@ void InteractionManager::ResolveEnemyVsShield(Pile *selected, Pile *target,
 void InteractionManager::ResolvePotionVsPlayer(Pile *selected, Pile *target,
 											   Card &sel, Card &tar,
 											   int &score) {
-	tar.value += sel.value;
+	tar.IncreaseVal(sel.value);
 	selected->cards.pop_back();
 }
 
@@ -225,4 +225,70 @@ void InteractionManager::ResolveCoinVsPlayer(Pile *selected, Pile *target,
 											 Card &sel, Card &tar, int &score) {
 	score += sel.value;
 	selected->cards.pop_back();
+}
+
+void InteractionManager::ResolveSpellVsEnemy(Pile *selected, Pile *target,
+											 Card &sel, Card &tar, int &score,
+											 Pile *playerPile,
+											 std::vector<Card> &masterDeck,
+											 Pile *dungeonPiles) {
+	switch (sel.element) {
+	case Element::LIFESTEAL: {
+		int dmgDealt = 0;
+		if (sel.value >= tar.value) {
+			dmgDealt = tar.value;
+			score += tar.value;
+
+			sel.value -= tar.value;
+
+			target->cards.pop_back();
+
+			if (sel.value <= 0) {
+				selected->cards.pop_back();
+			}
+		} else {
+			dmgDealt = sel.value;
+			tar.value -= sel.value;
+			selected->cards.pop_back();
+		}
+
+		if (playerPile != nullptr && !playerPile->IsEmpty()) {
+			playerPile->Back().IncreaseVal(dmgDealt);
+		}
+		break;
+	}
+	case Element::WARHAMMER: {
+		masterDeck.insert(masterDeck.begin(), tar);
+
+		TraceLog(LOG_INFO, "KARTA WYSLANA NA TYL DECKU");
+		target->cards.pop_back();
+
+		sel.value -= 1;
+		if (sel.value <= 0) {
+			selected->cards.pop_back();
+		}
+		return;
+	}
+	case Element::ESCAPE: {
+		TraceLog(LOG_INFO, "ESCAPE USED RESET");
+
+		if (selected != nullptr && !selected->IsEmpty()) {
+			selected->cards.pop_back();
+		}
+		for (int i = 0; i < D_COUNT; i++) {
+			while (!dungeonPiles[i].IsEmpty()) {
+				masterDeck.insert(masterDeck.begin(), dungeonPiles[i].Back());
+				dungeonPiles[i].cards.pop_back();
+			}
+		}
+
+		for (int i = 0; i < D_COUNT; i++) {
+			if (!masterDeck.empty()) {
+				dungeonPiles[i].cards.push_back(masterDeck.back());
+				masterDeck.pop_back();
+			}
+		}
+		return;
+	}
+	}
 }

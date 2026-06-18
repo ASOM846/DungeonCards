@@ -1,6 +1,6 @@
 #pragma once
-
 #include "pileManager.hpp"
+#include "textureManager.hpp"
 #include "ui.hpp"
 #include <raylib.h>
 
@@ -24,6 +24,8 @@ class Game {
 	void Draw();
 
   private:
+	TextureManager textureManager;
+
 	PileManager pileManager;
 	Ui ui;
 

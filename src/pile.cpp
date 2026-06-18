@@ -1,12 +1,13 @@
 #include "pile.hpp"
+#include "textureManager.hpp"
 #include "types.hpp"
+#include <execution>
 #include <raylib.h>
 
-void Pile::Draw(bool isSelected, bool isHighlited) {
+void Pile::Draw(TextureManager &tm, bool isSelected, bool isHighlited) {
 	if (cards.empty()) {
-		DrawRectangleV(position,
-					   {static_cast<float>(width), static_cast<float>(height)},
-					   Color{40, 40, 40, 100});
+
+		DrawCardBackground();
 
 		if (isDiscardPile) {
 			auto xColor = Fade(DARKGRAY, 0.6f);
@@ -24,12 +25,10 @@ void Pile::Draw(bool isSelected, bool isHighlited) {
 		return;
 	}
 
-	DrawRectangleV(position,
-				   {static_cast<float>(width), static_cast<float>(height)},
-				   WHITE);
+	float centerX = position.x + width / 2.0f;
+	float centerY = position.y + height / 2.0f;
 
-	DrawRectangleLinesEx({position.x, position.y, (float)width, (float)height},
-						 2, LIGHTGRAY);
+	DrawCardBackground();
 
 	if (isSelected) {
 		DrawRectangleLinesEx(
@@ -40,121 +39,112 @@ void Pile::Draw(bool isSelected, bool isHighlited) {
 		DrawRectangleLinesEx(
 			{position.x, position.y, (float)width, (float)height}, 4, GREEN);
 	}
-	Card *topCard = &cards.back();
-	int fontSize = 20;
+
+	const Texture2D &texture = tm.get(cards.back().textureId);
+
+	float scale = 3.0f;
+	if (cards.back().type == CardType::ENEMY ||
+		cards.back().type == CardType::PLAYER)
+		scale = 5.0f;
+
+	float drawX = centerX - (texture.width * scale) / 2.0f;
+	float drawY = centerY - (texture.height * scale) / 2.0f;
+
+	DrawTextureEx(texture, {drawX, drawY - 5 * scale}, 0.0f, scale, RAYWHITE);
+}
+
+void Pile::DrawCardBackground() {
 
 	float centerX = position.x + width / 2.0f;
 	float centerY = position.y + height / 2.0f;
 
-	switch (topCard->type) {
-	case CardType::ENEMY: {
-		if (topCard->element == Element::NONE) {
-			DrawEnemy(centerX, centerY, GREEN);
-		} else if (topCard->element == Element::FIRE) {
-			DrawEnemy(centerX, centerY, RED);
-		} else {
-			DrawEnemy(centerX, centerY, BLUE);
-		}
-		break;
-	}
-	case CardType::WEAPON: {
-		DrawRectangle(centerX - 6, centerY - 45, 12, 55, LIGHTGRAY);
-		DrawRectangleLines(centerX - 6, centerY - 45, 12, 55, DARKGRAY);
-		DrawTriangle({centerX - 6, centerY - 45}, {centerX, centerY - 57},
-					 {centerX + 6, centerY - 45}, LIGHTGRAY);
-		DrawRectangle(centerX - 22, centerY + 10, 44, 8, GOLD);
-		DrawRectangle(centerX - 4, centerY + 18, 8, 20, BROWN);
-		DrawCircle(centerX, centerY + 40, 6, GOLD);
-		break;
-	}
-	case CardType::WAND: {
-		if (topCard->element == Element::ICE) {
-			DrawRectangle(centerX - 4, centerY - 10, 8, 45, LIGHTGRAY);
-			DrawRectangle(centerX - 8, centerY - 15, 16, 6, SKYBLUE);
-			DrawTriangle({centerX - 14, centerY - 30}, {centerX, centerY - 52},
-						 {centerX + 14, centerY - 30}, SKYBLUE);
-			DrawTriangle({centerX - 14, centerY - 30},
-						 {centerX + 14, centerY - 30}, {centerX, centerY - 8},
-						 SKYBLUE);
-			DrawTriangle({centerX - 7, centerY - 30}, {centerX, centerY - 42},
-						 {centerX + 7, centerY - 30}, WHITE);
-			DrawTriangle({centerX - 7, centerY - 30},
-						 {centerX + 7, centerY - 30}, {centerX, centerY - 18},
-						 WHITE);
-		} else {
-			DrawRectangle(centerX - 4, centerY - 10, 8, 45, BROWN);
-			DrawRectangle(centerX - 8, centerY - 15, 16, 6, GOLD);
-			DrawCircle(centerX, centerY - 30, 16, RED);
-			DrawCircle(centerX, centerY - 26, 10, ORANGE);
-			DrawTriangle({centerX - 10, centerY - 25}, {centerX, centerY - 48},
-						 {centerX + 10, centerY - 25}, ORANGE);
-			DrawCircle(centerX, centerY - 24, 5, YELLOW);
-		}
-		break;
-	}
-	case CardType::SHIELD: {
-		DrawRectangle(centerX - 26, centerY - 35, 52, 35, DARKGRAY);
-		DrawTriangle({centerX - 26, centerY}, {centerX, centerY + 40},
-					 {centerX + 26, centerY}, DARKGRAY);
+	const auto shadow = Color{0, 0, 0, 60};
+	const auto darkWood = Color{60, 30, 15, 255};
+	const auto parchment = Color{220, 200, 170, 255};
+	const auto goldAccent = Color{180, 130, 40, 255};
 
-		DrawRectangle(centerX - 21, centerY - 32, 42, 32, BROWN);
-		DrawTriangle({centerX - 21, centerY}, {centerX, centerY + 34},
-					 {centerX + 21, centerY}, BROWN);
+	DrawRectangle(position.x + 4, position.y + 4, width, height, shadow);
+	DrawRectangle(position.x, position.y, width, height, darkWood);
 
-		DrawRectangle(centerX - 4, centerY - 32, 8, 45, GRAY);
-		DrawTriangle({centerX - 4, centerY + 13}, {centerX, centerY + 34},
-					 {centerX + 4, centerY + 13}, GRAY);
+	const float border = 6;
+	DrawRectangle(position.x + border, position.y + border,
+				  width - (2 * border), height - (2 * border), parchment);
 
-		DrawCircle(centerX, centerY - 5, 8, DARKGRAY);
-		DrawCircle(centerX, centerY - 5, 5, LIGHTGRAY);
-		break;
-	}
-	case CardType::POTION: {
-		DrawCircle(centerX, centerY + 15, 30, DARKGRAY);
-		DrawCircle(centerX, centerY + 15, 27, RED);
-		DrawRectangle(centerX - 8, centerY - 25, 16, 20, DARKGRAY);
-		DrawRectangle(centerX - 6, centerY - 23, 12, 22, LIGHTGRAY);
-		DrawRectangle(centerX - 10, centerY - 32, 20, 8, BROWN);
-		DrawCircle(centerX - 10, centerY + 5, 4, WHITE);
-		break;
-	}
-	case CardType::COIN: {
-		DrawCircle(centerX, centerY + 15, 30, GOLD);
-		break;
-	}
-	case CardType::PLAYER: {
-		Vector2 p1 = {centerX, centerY - 40};
-		Vector2 p2 = {centerX - 30, centerY - 10};
-		Vector2 p3 = {centerX + 30, centerY - 10};
-		DrawTriangle(p1, p2, p3, BLUE);
-		DrawRectangle(centerX - 30, centerY - 10, 60, 30, BLUE);
-		DrawTriangle({centerX - 30, centerY + 20}, {centerX, centerY + 45},
-					 {centerX + 30, centerY + 20}, BLUE);
-		DrawLineEx({centerX, centerY - 25}, {centerX, centerY + 25}, 4, GOLD);
-		DrawLineEx({centerX - 15, centerY}, {centerX + 15, centerY}, 4, GOLD);
-		break;
-	}
-	default:
-		break;
+	int innerMargin = border + 4;
+	DrawRectangleLinesEx({position.x + static_cast<float>(innerMargin),
+						  position.y + static_cast<float>(innerMargin),
+						  static_cast<float>(width - (2 * innerMargin)),
+						  static_cast<float>(height - (innerMargin * 2))},
+						 2, goldAccent);
+
+	float cornerLen = 16.0F;
+	float thick = 4.0F;
+	float p = innerMargin;
+
+	Vector2 tl = {position.x + p, position.y + p};
+	DrawLineEx(tl, {tl.x + cornerLen, tl.y}, thick, goldAccent);
+	DrawLineEx(tl, {tl.x, tl.y + cornerLen}, thick, goldAccent);
+
+	Vector2 tr = {position.x + width - p, position.y + p};
+	DrawLineEx(tr, {tr.x - cornerLen, tr.y}, thick, goldAccent);
+	DrawLineEx(tr, {tr.x, tr.y + cornerLen}, thick, goldAccent);
+
+	Vector2 bl = {position.x + p, position.y + height - p};
+	DrawLineEx(bl, {bl.x + cornerLen, bl.y}, thick, goldAccent);
+	DrawLineEx(bl, {bl.x, bl.y - cornerLen}, thick, goldAccent);
+
+	Vector2 br = {position.x + width - p, position.y + height - p};
+	DrawLineEx(br, {br.x - cornerLen, br.y}, thick, goldAccent);
+	DrawLineEx(br, {br.x, br.y - cornerLen}, thick, goldAccent);
+
+	const float niteRadius = 3;
+	DrawCircle(tl.x, tl.y, niteRadius, darkWood);
+	DrawCircle(tr.x, tr.y, niteRadius, darkWood);
+	DrawCircle(bl.x, bl.y, niteRadius, darkWood);
+
+	if (IsEmpty()) {
+		return;
 	}
 
+	Card *topCard = &cards.back();
+
+	int fontSize = 20;
 	const char *name = topCard->name.c_str();
 	int textWidth = MeasureText(name, fontSize);
-	int textX = position.x + width / 2 - textWidth / 2;
-	DrawText(name, textX, position.y + 15, fontSize, BLACK);
+	int texX = position.x + width / 2 - textWidth / 2;
+	DrawText(name, texX, position.y + 16, fontSize, {40, 20, 10, 255});
 
-	const char *valueStr = TextFormat("%d", topCard->value);
+	const float sepY = position.y + 42;
+	DrawLineEx({position.x + 14, sepY}, {position.x + width - 14, sepY}, 2,
+			   goldAccent);
+	DrawCircle(position.x + 14, sepY, 2, darkWood);
+	DrawCircle(position.x + width - 14, sepY, 2, darkWood);
+
+	const char *valueStr;
+	if (topCard->maxValue == -1) {
+		valueStr = TextFormat("%d", topCard->value);
+	} else {
+		valueStr = TextFormat("%d | %d", topCard->value, topCard->maxValue);
+	}
+
+	const float sepYBottom = position.y + height - 46;
+	DrawLineEx({position.x + 14, sepYBottom},
+			   {position.x + width - 14, sepYBottom}, 2, goldAccent);
+	DrawCircle(position.x + 14, sepYBottom, 2, darkWood);
+	DrawCircle(position.x + width - 14, sepYBottom, 2, darkWood);
+
 	fontSize = 24;
 	textWidth = MeasureText(valueStr, fontSize);
-	textX = position.x + width / 2 - textWidth / 2;
+	int valTextX = centerX - textWidth / 2;
+	int valTextY = sepYBottom + 8;
 
-	auto valueColor = DARKBLUE;
+	auto valueColor = Color{50, 30, 20, 255};
 	if (topCard->type == CardType::ENEMY)
-		valueColor = RED;
+		valueColor = Color{150, 25, 25, 255};
 	if (topCard->type == CardType::POTION)
-		valueColor = GREEN;
+		valueColor = Color{25, 110, 25, 255};
 
-	DrawText(valueStr, textX, position.y + height - 35, fontSize, valueColor);
+	DrawText(valueStr, valTextX, valTextY, fontSize, valueColor);
 }
 
 void Pile::DrawEnemy(const int &centerX, const int &centerY, Color color) {

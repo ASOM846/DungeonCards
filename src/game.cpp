@@ -5,6 +5,7 @@
 
 void Game::Init() {
 	Reset();
+	textureManager.loadAll();
 }
 
 void Game::Reset() {
@@ -13,8 +14,6 @@ void Game::Reset() {
 
 	pileManager.Init();
 }
-
-void Game::Run() {}
 
 void Game::Update() {
 	Pile &playerPile = pileManager.GetPlayerPile(P_PLAYER);
@@ -38,9 +37,10 @@ void Game::Update() {
 			Pile *clickedPile = pileManager.GetPileAt(mousePos);
 
 			if (clickedPile != nullptr) {
-				InteractionManager::Handle(
-					selected, clickedPile, score,
-					&pileManager.GetPlayerPile(P_PLAYER));
+				InteractionManager::Handle(selected, clickedPile, score,
+										   &pileManager.GetPlayerPile(P_PLAYER),
+										   pileManager.GetDungeonPiles(),
+										   pileManager.GetMasterDeck());
 			}
 		}
 	}
@@ -53,7 +53,7 @@ void Game::Update() {
 }
 
 void Game::Draw() {
-	pileManager.DrawAll(selected);
+	pileManager.DrawAll(textureManager, selected);
 
 	if (gameState == GameState::LOSE) {
 		DrawLose();
@@ -67,6 +67,8 @@ void Game::Draw() {
 		Ui::Draw(pileManager.GetPlayerPile(P_PLAYER).cards.back().value, score,
 				 pileManager.GetMasterDeckSize());
 	}
+
+	Ui::DrawHoveredCardInfo(pileManager.GetCardAt(GetMousePosition()));
 }
 
 void Game::DrawLose() {
