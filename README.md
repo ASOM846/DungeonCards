@@ -1,4 +1,4 @@
-# DungeonSweeper
+# DungeonCards
 
 ![C++](https://img.shields.io/badge/C++-23-blue.svg)
 ![Raylib](https://img.shields.io/badge/raylib-game_engine-red?logo=raylib)
