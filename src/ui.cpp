@@ -95,7 +95,10 @@ void Ui::DrawMessageRect(const Rectangle &dst, const char *text,
 	DrawCircle(bl.x, bl.y, niteRadius, darkWood);
 	DrawCircle(br.x, br.y, niteRadius, darkWood);
 
-	float fontSize = 40.0f;
+	float fontSize = 20.0f;
+
+	if (font.texture.id != GetFontDefault().texture.id)
+		fontSize = 40.0f;
 	float fontSpacing = 1.0f;
 
 	Vector2 textSize = MeasureTextEx(font, text, fontSize, fontSpacing);

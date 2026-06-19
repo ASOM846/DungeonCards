@@ -49,6 +49,8 @@ void Menu::DrawTitle(TextureManager &tm) const {
 	Vector2 textPos = {GetScreenWidth() / 2 - textM.x / 2,
 					   static_cast<float>(GetScreenHeight() / 3)};
 
+	DrawTextEx(font, gameTitle, {textPos.x + 4.0f, textPos.y + 4.0f}, fontSize,
+			   fontSpacing, Color{0, 0, 0, 100});
 	DrawTextEx(font, gameTitle, textPos, fontSize, fontSpacing,
 			   CLITERAL(Color){245, 237, 215, 255});
 }
