@@ -308,7 +308,6 @@ void InteractionManager::ResolveSpellVsEnemy(Pile *selected, Pile *target,
 	case Element::WARHAMMER: {
 		masterDeck.insert(masterDeck.begin(), tar);
 
-		TraceLog(LOG_INFO, "KARTA WYSLANA NA TYL DECKU");
 		target->cards.pop_back();
 
 		sel.value -= 1;
@@ -318,7 +317,6 @@ void InteractionManager::ResolveSpellVsEnemy(Pile *selected, Pile *target,
 		return;
 	}
 	case Element::ESCAPE: {
-		TraceLog(LOG_INFO, "ESCAPE USED RESET");
 
 		if (selected != nullptr && !selected->IsEmpty()) {
 			selected->cards.pop_back();

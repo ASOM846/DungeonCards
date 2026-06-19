@@ -40,6 +40,8 @@ void Game::Update() {
 
 void Game::Draw() {
 
+	Ui::DrawTitle("DungeonCards", textureManager.getCustonFont());
+
 	if (gameState == GameState::PLAYING) {
 		DrawPlay();
 	}
@@ -48,7 +50,6 @@ void Game::Draw() {
 		DrawWinLose();
 	}
 
-	Ui::DrawTitle("DungeonCards", textureManager.getCustonFont());
 	Ui::DrawProgressBar(pileManager.GetMasterDeckSize(), cardsDefeated);
 }
 
@@ -111,7 +112,12 @@ void Game::DrawPlay() {
 }
 
 void Game::DrawWinLose() {
-	const char *text = TextFormat("Game won \n Score %d", score);
+	const char *text = nullptr;
+
+	if (gameState == GameState::WIN)
+		text = TextFormat("Victory \n Score %d", score);
+	else
+		text = TextFormat("Defeat \n Score %d", score);
 
 	int width = 300;
 	int height = 300;

@@ -1,22 +1,18 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(mineswepper VERSION 1.0 LANGUAGES CXX)
+project(dungeoncards VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# --- Opcje ---------------------------------------------------------------
-# Włącz FAST_BUILD domyślnie — wyłącz ręcznie z -DFAST_BUILD=OFF jeśli chcesz
 option(FAST_BUILD "Enable fast build helpers (ccache/sccache, PCH, UNITY_BUILD,
 faster compile flags)" ON)
 option(RAYLIB_USE_SUBMODULE "Use external/raylib subdirectory if present" OFF)
 
-# Domyślny typ buildu - Debug (szybsza kompilacja i sensowne dla devel)
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
 endif()
 
-# --- FAST_BUILD: compiler launcher (sccache/ccache) i szybkie flagi ----------
 if(FAST_BUILD)
   find_program(SCCACHE_EXE sccache)
   find_program(CCACHE_EXE ccache)
@@ -34,18 +30,13 @@ if(FAST_BUILD)
   endif()
 
   if(MSVC)
-    # Debug, szybsza kompilacja
     add_compile_options(/Od /Zi)
     add_compile_options(/W3)
   else()
-    # szybkie flagi devel: brak optymalizacji, debug symbols, mniej I/O overhead
     add_compile_options(-O0 -g -pipe)
-    # jeśli chcesz widzieć warningi, usuń -w
-    # add_compile_options(-w)
   endif()
 endif()
 
-# --- Zbierz źródła (GLOB_RECURSE dla wygody) ------------------------------
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
     "${CMAKE_SOURCE_DIR}/src/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/*.c"
@@ -53,17 +44,14 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS
     "${CMAKE_SOURCE_DIR}/src/*.h"
 )
 
-add_executable(mineswepper ${SRC_FILES})
+add_executable(dungeoncards ${SRC_FILES})
 
-# --- UNITY_BUILD (redukuje spawn overhead dla wielu plików) ---------------
-# właściwość UNITY_BUILD dostępna w CMake >= 3.24
 if(FAST_BUILD AND (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24"))
   message(STATUS "FAST_BUILD: enabling UNITY_BUILD (merge many translation units)")
-  set_target_properties(mineswepper PROPERTIES UNITY_BUILD ON)
-  set_target_properties(mineswepper PROPERTIES UNITY_BUILD_BATCH_SIZE 16)
+  set_target_properties(dungeoncards PROPERTIES UNITY_BUILD ON)
+  set_target_properties(dungeoncards PROPERTIES UNITY_BUILD_BATCH_SIZE 16)
 endif()
 
-# --- Znajdowanie raylib -----------------------------------------------
 set(RAYLIB_TARGET "")
 
 find_package(raylib CONFIG QUIET)
@@ -108,24 +96,21 @@ if(NOT RAYLIB_TARGET)
     )
 endif()
 
-target_link_libraries(mineswepper PRIVATE ${RAYLIB_TARGET})
-# --- Automatyczne kopiowanie folderu assets do folderu binarnego ------------
+target_link_libraries(dungeoncards PRIVATE ${RAYLIB_TARGET})
 add_custom_command(
-    TARGET mineswepper POST_BUILD
+    TARGET dungeoncards POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${CMAKE_SOURCE_DIR}/assets"
-            "$<TARGET_FILE_DIR:mineswepper>/assets"
+            "$<TARGET_FILE_DIR:dungeoncards>/assets"
     COMMENT "Kopiowanie folderu assets do katalogu wyjściowego..."
 )
 
-# --- Drobne ustawienia kompilatora (opcjonalne) ----------------------------
 if(MSVC)
-  target_compile_options(mineswepper PRIVATE /W4)
+  target_compile_options(dungeoncards PRIVATE /W4)
 else()
-  target_compile_options(mineswepper PRIVATE -Wall -Wextra -Wpedantic)
+  target_compile_options(dungeoncards PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-# --- Informacje na konfiguracji ------------------------------------------
 message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "FAST_BUILD = ${FAST_BUILD}")
 message(STATUS "CMake generator: ${CMAKE_GENERATOR}")

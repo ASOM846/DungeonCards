@@ -5,7 +5,6 @@
 #include "types.hpp"
 #include <algorithm>
 #include <random>
-#include <ratio>
 #include <raylib.h>
 #include <sys/types.h>
 #include <vector>
@@ -79,7 +78,6 @@ void PileManager::Init() {
 
 		if (tmp.type == CardType::SPELL) {
 			card = GetRandomSpell();
-			TraceLog(LOG_INFO, "SPECIAL_WEAPON INITIALIZED");
 
 		} else {
 			card = GenerateCardData(tmp.type, tmp.element);
@@ -96,18 +94,26 @@ void PileManager::Init() {
 		masterDeck.push_back(card);
 	}
 
-	Card sword = {.name = "SWORD",
-				  .value = 5,
-				  .type = CardType::WEAPON,
-				  .textureId = TextureId::WeaponSword};
+	Card sword;
+	sword.name = "SWORD";
+	sword.description = "SWORD - STANDARD WEAPON";
+	sword.value = 5;
+	sword.type = CardType::WEAPON;
+	sword.element = Element::NONE;
+	sword.textureId = TextureId::WeaponSword;
 
 	dungeonPiles[D_ONE].cards.push_back(sword);
 
-	Card player = {.name = "PLAYER",
-				   .value = 13,
-				   .maxValue = 13,
-				   .type = CardType::PLAYER,
-				   .textureId = TextureId::Knight1};
+	Card player;
+	player.name = "PLAYER";
+	player.description = "YOUR HERO";
+	player.value = 13;
+	player.maxValue = 13;
+	player.type = CardType::PLAYER;
+	player.element = Element::NONE;
+	player.textureId = TextureId::Knight1;
+
+	playerPiles[P_PLAYER].cards.push_back(player);
 
 	playerPiles[P_PLAYER].cards.push_back(player);
 }
@@ -278,20 +284,30 @@ Card PileManager::GetRandomSpell() {
 
 	switch (selectedElement) {
 	case Element::LIFESTEAL:
-		TraceLog(LOG_INFO, "LIFESTEAL init");
 		c.value = GetRandomValue(6, 12);
 		break;
 	case Element::WARHAMMER:
-		TraceLog(LOG_INFO, "WARHAMMER init");
 		c.value = 1;
 		break;
 	case Element::ESCAPE:
-		TraceLog(LOG_INFO, "ESCAPE init");
 		c.value = 1;
 		break;
 	}
 
 	return c;
+}
+
+ItemParms PileManager::GetRandomWeaponParms() {
+	static const std::vector<ItemParms> parms = {
+		{TextureId::WeaponSword, "SWORD"},
+		{TextureId::WeaponHammer, "HAMMER"},
+		{TextureId::WeaponAxe, "AXE"},
+		{TextureId::WeaponDoubleAxe, "DOUBLE AXE"},
+	};
+
+	int seed = GetRandomValue(0, parms.size() - 1);
+
+	return parms[seed];
 }
 
 Card PileManager::GenerateCardData(const CardType type, const Element element) {
@@ -318,15 +334,17 @@ Card PileManager::GenerateCardData(const CardType type, const Element element) {
 			c.textureId = TextureId::EnemyFire;
 		}
 		break;
-	case CardType::WEAPON:
-		c.name = "SWORD";
-		c.description = "SWORD - STANDARD ENEMY";
-		c.textureId = TextureId::WeaponSword;
+	case CardType::WEAPON: {
+		ItemParms weaponParms = GetRandomWeaponParms();
+		c.name = weaponParms.name;
+		c.textureId = weaponParms.textureId;
+
+		c.description = TextFormat("%s - STANDARD WEAPON", c.name.c_str());
 		break;
+	}
 	case CardType::SPELL:
 		c.name = "SPELL";
-		c.description =
-			"SPELL - YOU SHOUDL NOT BE ABLE TO HAVE THIS IN THIS FORM xd";
+		c.description = "SPELL - UNKNOW MAGIC";
 		if (c.element == Element::LIFESTEAL) {
 			c.name = "LIFESTEAL";
 			c.description = "LIFESTEAL - HEALS YOU WITH DAMAGE IT DEALS";
@@ -348,6 +366,7 @@ Card PileManager::GenerateCardData(const CardType type, const Element element) {
 			c.name = "ICE WAND";
 			c.description = "ICE WAND - DEALS DOUBLE DAMAGE TO FIRE. DEALS NO "
 							"DAMAGE TO ICE";
+			c.textureId = TextureId::WeaponWandIce;
 		}
 		if (c.element == Element::FIRE) {
 			c.name = "FIRE WAND";
@@ -358,7 +377,7 @@ Card PileManager::GenerateCardData(const CardType type, const Element element) {
 		break;
 	case CardType::SHIELD:
 		c.name = "SHIELD";
-		c.description = "SHIELD - DAMAGE ABSORBTION ITEM";
+		c.description = "SHIELD - DAMAGE ABSORPTION ITEM";
 		c.textureId = TextureId::ItemShield;
 		break;
 	case CardType::POTION:
@@ -368,6 +387,7 @@ Card PileManager::GenerateCardData(const CardType type, const Element element) {
 		break;
 	case CardType::COIN:
 		c.name = "COIN";
+		c.description = "COIN - COLLECT GOLD TO SCORE POINTS";
 		c.textureId = TextureId::Coin;
 		break;
 	case CardType::PLAYER:
