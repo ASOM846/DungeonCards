@@ -32,6 +32,10 @@ void WindowManager::Update() {
 	}
 	case WindowState::GAME: {
 		game.Update();
+
+		if (game.shoudldReturnToMenu()) {
+			SwitchState(WindowState::MENU);
+		}
 		break;
 	}
 	}
@@ -57,8 +61,17 @@ void WindowManager::Render() {
 }
 
 void WindowManager::SwitchState(const WindowState newState) {
-	if (windowState == newState)
+	if (windowState == newState) {
 		return;
-	else
-		windowState = newState;
+	}
+
+	switch (newState) {
+	case WindowState::MENU:
+		break;
+	case WindowState::GAME:
+		game.Reset();
+		break;
+	}
+
+	windowState = newState;
 }

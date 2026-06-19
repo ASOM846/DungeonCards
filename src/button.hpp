@@ -31,7 +31,7 @@ struct Button {
 		}
 	}
 
-	void Draw(TextureManager &tm) const {
-		Ui::DrawMessageRect(rect, text, shadowOffset, tm.getCustonFont());
+	void Draw(const Font &font) const {
+		Ui::DrawMessageRect(rect, text, shadowOffset, font);
 	}
 };

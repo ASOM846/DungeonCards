@@ -36,7 +36,7 @@ MenuUpdateResoult Menu::Update() {
 void Menu::Draw(TextureManager &tm) const {
 	DrawTitle(tm);
 
-	playButton.Draw(tm);
+	playButton.Draw(tm.getCustonFont());
 }
 
 void Menu::DrawTitle(TextureManager &tm) const {

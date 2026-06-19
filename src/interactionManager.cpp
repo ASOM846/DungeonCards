@@ -57,7 +57,8 @@ bool InteractionManager::ShouldHighlight(Pile *selected, Pile *target) {
 
 void InteractionManager::Handle(Pile *&selected, Pile *target, int &score,
 								Pile *playerPile, Pile *dungeonPiles,
-								std::vector<Card> &masterDeck) {
+								std::vector<Card> &masterDeck,
+								int &cardsDefeated) {
 	if (selected == nullptr) {
 		if (!target->cards.empty() && !target->isDiscardPile) {
 			selected = target;
@@ -76,7 +77,7 @@ void InteractionManager::Handle(Pile *&selected, Pile *target, int &score,
 	}
 
 	if (target->isDiscardPile) {
-		ResolveCardVsDiscardPile(selected, target, score);
+		ResolveCardVsDiscardPile(selected, target, score, cardsDefeated);
 		selected = nullptr;
 		return;
 	}
@@ -98,7 +99,7 @@ void InteractionManager::Handle(Pile *&selected, Pile *target, int &score,
 	}
 
 	ResolveCardInteraction(selected, target, score, playerPile, masterDeck,
-						   dungeonPiles);
+						   dungeonPiles, cardsDefeated);
 	selected = nullptr;
 }
 
@@ -117,32 +118,35 @@ void InteractionManager::HandleEmptyTargetMove(Pile *selected, Pile *target) {
 void InteractionManager::ResolveCardInteraction(Pile *selected, Pile *target,
 												int &score, Pile *playerPile,
 												std::vector<Card> &masterDeck,
-												Pile *dungeonPiles) {
+												Pile *dungeonPiles,
+												int &cardsDefeated) {
 	Card &sel = selected->cards.back();
 	Card &tar = target->cards.back();
 
 	if (sel.type == CardType::WEAPON && tar.type == CardType::ENEMY) {
 		ResolveWeaponVsEnemy(selected, target, sel, tar, score, playerPile,
-							 masterDeck);
+							 masterDeck, cardsDefeated);
 	} else if (sel.type == CardType::ENEMY && tar.type == CardType::PLAYER) {
-		ResolvePlayerVsEnemy(selected, tar, sel, score);
+		ResolvePlayerVsEnemy(selected, tar, sel, score, cardsDefeated);
 	} else if (sel.type == CardType::ENEMY && tar.type == CardType::SHIELD) {
-		ResolveEnemyVsShield(selected, target, sel, tar, score, playerPile);
+		ResolveEnemyVsShield(selected, target, sel, tar, score, playerPile,
+							 cardsDefeated);
 	} else if (sel.type == CardType::POTION && tar.type == CardType::PLAYER) {
-		ResolvePotionVsPlayer(selected, target, sel, tar, score);
+		ResolvePotionVsPlayer(selected, target, sel, tar, score, cardsDefeated);
 	} else if (sel.type == CardType::WAND && tar.type == CardType::ENEMY) {
-		ResolveWandVsEnemy(selected, target, sel, tar, score);
+		ResolveWandVsEnemy(selected, target, sel, tar, score, cardsDefeated);
 	} else if (sel.type == CardType::COIN && tar.type == CardType::PLAYER) {
-		ResolveCoinVsPlayer(selected, target, sel, tar, score);
+		ResolveCoinVsPlayer(selected, target, sel, tar, score, cardsDefeated);
 	} else if (sel.type == CardType::SPELL && tar.type == CardType::ENEMY) {
 		ResolveSpellVsEnemy(selected, target, sel, tar, score, playerPile,
-							masterDeck, dungeonPiles);
+							masterDeck, dungeonPiles, cardsDefeated);
 	} else {
 	}
 }
 
 void InteractionManager::ResolveCardVsDiscardPile(Pile *selected, Pile *target,
-												  int &score) {
+												  int &score,
+												  int &cardsDefeated) {
 	Card &topCard = selected->Back();
 
 	if (selected->Back().type == CardType::PLAYER ||
@@ -151,12 +155,15 @@ void InteractionManager::ResolveCardVsDiscardPile(Pile *selected, Pile *target,
 	}
 	score += selected->Back().value;
 	selected->cards.pop_back();
+	cardsDefeated++;
 }
 
 void InteractionManager::ResolveWeaponVsEnemy(Pile *selected, Pile *target,
 											  Card &sel, Card &tar, int &score,
 											  Pile *playerPile,
-											  std::vector<Card> &masterDeck) {
+											  std::vector<Card> &masterDeck,
+											  int &cardsDefeated) {
+
 	if (selected->isBackpack)
 		return;
 
@@ -166,6 +173,7 @@ void InteractionManager::ResolveWeaponVsEnemy(Pile *selected, Pile *target,
 		sel.value -= tar.value;
 
 		target->cards.pop_back();
+		cardsDefeated++;
 
 		if (sel.value <= 0) {
 			selected->cards.pop_back();
@@ -173,25 +181,31 @@ void InteractionManager::ResolveWeaponVsEnemy(Pile *selected, Pile *target,
 	} else {
 		tar.value -= sel.value;
 		selected->cards.pop_back();
+		cardsDefeated++;
 	}
 }
 
 void InteractionManager::ResolvePlayerVsEnemy(Pile *target, Card &sel,
-											  Card &tar, int &score) {
+											  Card &tar, int &score,
+											  int &cardsDefeated) {
 	score += tar.value;
 
 	sel.value -= tar.value;
 	target->cards.pop_back();
+	cardsDefeated++;
 }
 
 void InteractionManager::ResolveEnemyVsShield(Pile *selected, Pile *target,
 											  Card &sel, Card &tar, int &score,
-											  Pile *playerPile) {
+											  Pile *playerPile,
+											  int &cardsDefeated) {
 	if (tar.value >= sel.value) {
 		tar.value -= sel.value;
 		selected->cards.pop_back();
+		cardsDefeated++;
 		if (tar.value <= 0) {
 			target->cards.pop_back();
+			cardsDefeated++;
 		}
 	} else if (sel.value > tar.value) {
 		int remainingDmg = sel.value - tar.value;
@@ -202,20 +216,22 @@ void InteractionManager::ResolveEnemyVsShield(Pile *selected, Pile *target,
 		}
 
 		selected->cards.pop_back();
+		cardsDefeated++;
 	}
-
 	score += sel.value;
 }
 
 void InteractionManager::ResolvePotionVsPlayer(Pile *selected, Pile *target,
-											   Card &sel, Card &tar,
-											   int &score) {
+											   Card &sel, Card &tar, int &score,
+											   int &cardsDefeated) {
 	tar.IncreaseVal(sel.value);
 	selected->cards.pop_back();
+	cardsDefeated++;
 }
 
 void InteractionManager::ResolveWandVsEnemy(Pile *selected, Pile *target,
-											Card &sel, Card &tar, int &score) {
+											Card &sel, Card &tar, int &score,
+											int &cardsDefeated) {
 	if (sel.element == tar.element) {
 		return;
 	}
@@ -233,28 +249,34 @@ void InteractionManager::ResolveWandVsEnemy(Pile *selected, Pile *target,
 	if (totalDamage >= tar.value) {
 		score += tar.value;
 		target->cards.pop_back();
+		cardsDefeated++;
 	} else {
 		tar.value -= totalDamage;
+		cardsDefeated++;
 	}
 
 	sel.value -= 1;
 
 	if (sel.value <= 0) {
 		selected->cards.pop_back();
+		cardsDefeated++;
 	}
 }
 
 void InteractionManager::ResolveCoinVsPlayer(Pile *selected, Pile *target,
-											 Card &sel, Card &tar, int &score) {
+											 Card &sel, Card &tar, int &score,
+											 int &cardsDefeated) {
 	score += sel.value;
 	selected->cards.pop_back();
+	cardsDefeated++;
 }
 
 void InteractionManager::ResolveSpellVsEnemy(Pile *selected, Pile *target,
 											 Card &sel, Card &tar, int &score,
 											 Pile *playerPile,
 											 std::vector<Card> &masterDeck,
-											 Pile *dungeonPiles) {
+											 Pile *dungeonPiles,
+											 int &cardsDefeated) {
 	switch (sel.element) {
 	case Element::LIFESTEAL: {
 		int dmgDealt = 0;
@@ -265,14 +287,17 @@ void InteractionManager::ResolveSpellVsEnemy(Pile *selected, Pile *target,
 			sel.value -= tar.value;
 
 			target->cards.pop_back();
+			cardsDefeated++;
 
 			if (sel.value <= 0) {
 				selected->cards.pop_back();
+				cardsDefeated++;
 			}
 		} else {
 			dmgDealt = sel.value;
 			tar.value -= sel.value;
 			selected->cards.pop_back();
+			cardsDefeated++;
 		}
 
 		if (playerPile != nullptr && !playerPile->IsEmpty()) {

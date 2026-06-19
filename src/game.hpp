@@ -1,4 +1,5 @@
 #pragma once
+#include "button.hpp"
 #include "pileManager.hpp"
 #include "textureManager.hpp"
 #include "ui.hpp"
@@ -7,7 +8,7 @@
 enum class GameState {
 	PLAYING,
 	WIN,
-	LOSE
+	LOSE,
 };
 
 class Game {
@@ -25,6 +26,8 @@ class Game {
 
 	TextureManager *GetTextureManager() { return &textureManager; }
 
+	bool shoudldReturnToMenu() const { return shouldReturnToMenu; }
+
   private:
 	TextureManager textureManager;
 
@@ -35,8 +38,13 @@ class Game {
 
 	int score;
 
+	Button goBackButton;
+
 	Pile *selected = nullptr;
 
 	void DrawLose();
 	void DrawWin();
+
+	bool shouldReturnToMenu;
+	int cardsDefeated;
 };

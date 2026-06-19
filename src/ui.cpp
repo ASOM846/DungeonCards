@@ -1,4 +1,5 @@
 #include "ui.hpp"
+#include <execution>
 #include <raylib.h>
 
 void Ui::DrawBackground(const Texture2D &texture) {
@@ -9,16 +10,6 @@ void Ui::DrawBackground(const Texture2D &texture) {
 					 static_cast<float>(GetScreenHeight())};
 
 	DrawTexturePro(texture, src, dst, {0, 0}, 0.0f, WHITE);
-}
-
-void Ui::Draw(const int &hp, const int &score, const int &cardsRemaining) {
-	DrawText(TextFormat("HP: %d", hp), 40, GetScreenHeight() - 40, 20, RED);
-
-	DrawText(TextFormat("SCORE: %d", score), 120, GetScreenHeight() - 40, 20,
-			 BLUE);
-
-	DrawText(TextFormat("CARDS REMAINING: %d", cardsRemaining), 240,
-			 GetScreenHeight() - 40, 20, VIOLET);
 }
 
 void Ui::DrawMessageBox(const Card *card) {
@@ -40,7 +31,7 @@ void Ui::DrawMessageBox(const Card *card) {
 	dst.width = textSize.x + (paddingX * 2);
 	dst.height = textSize.y + (paddingY * 2);
 
-	dst.x = GetScreenWidth() - dst.width - 20;
+	dst.x = 20;
 	dst.y = GetScreenHeight() - dst.height - 20;
 
 	DrawMessageRect(dst, text);
@@ -107,4 +98,51 @@ void Ui::DrawMessageRect(const Rectangle &dst, const char *text,
 	float textY = (dst.y + dst.height / 2.0f) - (textSize.y / 2.0f);
 
 	DrawTextEx(font, text, {textX, textY}, fontSize, fontSpacing, darkWood);
+}
+
+void Ui::DrawProgressBar(float maxVal, float currentVal) {
+	const auto parchment = Color{220, 200, 170, 255};
+	const auto darkWood = Color{60, 30, 15, 255};
+
+	float barWidth = GetScreenWidth() * 0.66f;
+	const float barHeight = 16.0f;
+
+	float currentPercent = currentVal / maxVal;
+	if (currentPercent >= 1.0f)
+		currentPercent = 1.0f;
+	if (currentPercent < 0.0f)
+		currentPercent = 0.0f;
+
+	Vector2 pos = {GetScreenWidth() / 2 - barWidth / 2, 50};
+
+	DrawRectangle(pos.x, pos.y, barWidth, barHeight, parchment);
+
+	float border = 10.0f;
+	float innerWidth = barWidth - (border * 2);
+	float innerHeight = barHeight - (border * 2);
+
+	float currentWidth = barWidth * currentPercent;
+	if (currentWidth > 0) {
+		DrawRectangle(pos.x, pos.y, currentWidth, barHeight,
+					  Color{180, 130, 40, 255});
+	}
+
+	DrawRectangleLinesEx(
+		{pos.x - border / 2, pos.y, barWidth + border / 2, barHeight}, 4.0f,
+		Color{60, 30, 15, 255});
+
+	float pointerX = pos.x + border + currentWidth;
+	float pointerY = pos.y + (barHeight / 2);
+
+	float pSize = 24.0f;
+	float pBorder = 3.0f;
+
+	if (currentPercent > 0.0f) {
+		DrawRectangle(pointerX - pSize / 2, pointerY - pSize / 2, pSize, pSize,
+					  darkWood);
+
+		float pInnerSize = pSize - pBorder * 2;
+		DrawRectangleLines(pointerX - pInnerSize / 2, pointerY - pInnerSize / 2,
+						   pInnerSize, pInnerSize, parchment);
+	}
 }

@@ -2,38 +2,46 @@
 #include "interactionManager.hpp"
 #include "textureManager.hpp"
 #include "types.hpp"
+#include <iostream>
 #include <raylib.h>
 
 void Game::Init() {
 	Reset();
 	textureManager.loadAll();
+	goBackButton.rect = {.x = static_cast<float>(GetScreenWidth() / 2),
+						 .y = static_cast<float>(GetScreenHeight() / 2),
+						 .width = 20,
+						 .height = 20};
+	goBackButton.text = "test";
 }
 
 void Game::Reset() {
 	score = 0;
+	cardsDefeated = 0;
 	gameState = GameState::PLAYING;
+	shouldReturnToMenu = false;
 
 	pileManager.Init();
 }
 
 void Game::Update() {
-	Pile &playerPile = pileManager.GetPlayerPile(P_PLAYER);
-	if (!playerPile.IsEmpty()) {
-		if (playerPile.Back().value <= 0) {
-			gameState = GameState::LOSE;
-		}
-	}
-
-	if (pileManager.GetDungeonPile(D_ONE).IsEmpty() &&
-		pileManager.GetDungeonPile(D_TWO).IsEmpty() &&
-		pileManager.GetDungeonPile(D_THREE).IsEmpty() &&
-		pileManager.GetDungeonPile(D_FOUR).IsEmpty()) {
-		gameState = GameState::WIN;
-	}
-
 	if (gameState == GameState::PLAYING) {
+
+		Pile &playerPile = pileManager.GetPlayerPile(P_PLAYER);
+		if (!playerPile.IsEmpty()) {
+			if (playerPile.Back().value <= 0) {
+				gameState = GameState::LOSE;
+			}
+		}
+
+		if (pileManager.GetDungeonPile(D_ONE).IsEmpty() &&
+			pileManager.GetDungeonPile(D_TWO).IsEmpty() &&
+			pileManager.GetDungeonPile(D_THREE).IsEmpty() &&
+			pileManager.GetDungeonPile(D_FOUR).IsEmpty()) {
+			gameState = GameState::WIN;
+		}
 		pileManager.RefillRoomIfNeeded();
-		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 			Vector2 mousePos = GetMousePosition();
 			Pile *clickedPile = pileManager.GetPileAt(mousePos);
 
@@ -41,15 +49,33 @@ void Game::Update() {
 				InteractionManager::Handle(selected, clickedPile, score,
 										   &pileManager.GetPlayerPile(P_PLAYER),
 										   pileManager.GetDungeonPiles(),
-										   pileManager.GetMasterDeck());
+										   pileManager.GetMasterDeck(),
+										   cardsDefeated);
 			}
 		}
 	}
 
 	if (gameState != GameState::PLAYING) {
 		if (IsKeyDown(KEY_SPACE)) {
-			Reset();
+			shouldReturnToMenu = true;
 		}
+	}
+
+	int btnW = 150;
+	int btnH = 70;
+	int btnOffset = 20;
+
+	goBackButton.rect = {
+		.x = static_cast<float>(GetScreenWidth() - btnOffset - btnW),
+		.y = static_cast<float>(GetScreenHeight() - btnOffset - btnH),
+		.width = static_cast<float>(btnW),
+		.height = static_cast<float>(btnH)};
+	goBackButton.text = "Flee";
+
+	goBackButton.Update(GetMousePosition());
+
+	if (goBackButton.IsClicked(GetMousePosition())) {
+		gameState = GameState::LOSE;
 	}
 }
 
@@ -64,12 +90,14 @@ void Game::Draw() {
 		DrawWin();
 	}
 
-	if (!pileManager.GetPlayerPile(P_PLAYER).IsEmpty()) {
-		Ui::Draw(pileManager.GetPlayerPile(P_PLAYER).cards.back().value, score,
-				 pileManager.GetMasterDeckSize());
-	}
-
 	Ui::DrawMessageBox(pileManager.GetCardAt(GetMousePosition()));
+
+	goBackButton.Draw(textureManager.getCustonFont());
+
+	Ui::DrawProgressBar(pileManager.GetMasterDeckSize(), cardsDefeated);
+
+	std::cout << cardsDefeated << "  /   " << pileManager.GetMasterDeckSize()
+			  << std::endl;
 }
 
 void Game::DrawLose() {
@@ -88,7 +116,7 @@ void Game::DrawLose() {
 	DrawText(measage, textX, textY, fontSize, RED);
 
 	const char *meseage2 =
-		TextFormat("PRESS SPACE TO RESTART      SCORE:  %d", score);
+		TextFormat("PRESS SPACE TO RETURN TO MENU      SCORE:  %d", score);
 
 	fontSize = 20;
 	textWidth = MeasureText(meseage2, fontSize);
@@ -115,7 +143,7 @@ void Game::DrawWin() {
 	DrawText(measage, textX, textY, fontSize, BLUE);
 
 	const char *meseage2 =
-		TextFormat("PRESS SPACE TO RESTART      SCORE:  %d", score);
+		TextFormat("PRESS SPACE TO RETURN TO MENU      SCORE:  %d", score);
 
 	fontSize = 20;
 	textWidth = MeasureText(meseage2, fontSize);
