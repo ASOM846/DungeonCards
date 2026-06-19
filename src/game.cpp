@@ -12,7 +12,11 @@ void Game::Init() {
 						 .y = static_cast<float>(GetScreenHeight() / 2),
 						 .width = 20,
 						 .height = 20};
-	goBackButton.text = "test";
+	goBackButton.text = "Flee";
+
+	returnToMenuButton.rect = {.x = 0, .y = 0, .width = 20, .height = 20};
+
+	returnToMenuButton.text = "Return to menu";
 }
 
 void Game::Reset() {
@@ -26,38 +30,58 @@ void Game::Reset() {
 
 void Game::Update() {
 	if (gameState == GameState::PLAYING) {
-
-		Pile &playerPile = pileManager.GetPlayerPile(P_PLAYER);
-		if (!playerPile.IsEmpty()) {
-			if (playerPile.Back().value <= 0) {
-				gameState = GameState::LOSE;
-			}
-		}
-
-		if (pileManager.GetDungeonPile(D_ONE).IsEmpty() &&
-			pileManager.GetDungeonPile(D_TWO).IsEmpty() &&
-			pileManager.GetDungeonPile(D_THREE).IsEmpty() &&
-			pileManager.GetDungeonPile(D_FOUR).IsEmpty()) {
-			gameState = GameState::WIN;
-		}
-		pileManager.RefillRoomIfNeeded();
-		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-			Vector2 mousePos = GetMousePosition();
-			Pile *clickedPile = pileManager.GetPileAt(mousePos);
-
-			if (clickedPile != nullptr) {
-				InteractionManager::Handle(selected, clickedPile, score,
-										   &pileManager.GetPlayerPile(P_PLAYER),
-										   pileManager.GetDungeonPiles(),
-										   pileManager.GetMasterDeck(),
-										   cardsDefeated);
-			}
-		}
+		UpdatePlay();
 	}
 
 	if (gameState != GameState::PLAYING) {
-		if (IsKeyDown(KEY_SPACE)) {
-			shouldReturnToMenu = true;
+		UpdateWinLose();
+	}
+}
+
+void Game::Draw() {
+
+	if (gameState == GameState::PLAYING) {
+		DrawPlay();
+	}
+
+	if (gameState == GameState::LOSE || gameState == GameState::WIN) {
+		DrawWinLose();
+	}
+
+	Ui::DrawTitle("DungeonCards", textureManager.getCustonFont());
+	Ui::DrawProgressBar(pileManager.GetMasterDeckSize(), cardsDefeated);
+}
+
+void Game::UpdatePlay() {
+	Pile &playerPile = pileManager.GetPlayerPile(P_PLAYER);
+	if (!playerPile.IsEmpty()) {
+		if (playerPile.Back().value <= 0) {
+			gameState = GameState::LOSE;
+		}
+	}
+
+	if (pileManager.GetDungeonPile(D_ONE).IsEmpty() &&
+		pileManager.GetDungeonPile(D_TWO).IsEmpty() &&
+		pileManager.GetDungeonPile(D_THREE).IsEmpty() &&
+		pileManager.GetDungeonPile(D_FOUR).IsEmpty()) {
+		gameState = GameState::WIN;
+	}
+
+	if (IsWindowResized()) {
+		pileManager.UpdatePilesOffset();
+	}
+
+	pileManager.RefillRoomIfNeeded();
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+		Vector2 mousePos = GetMousePosition();
+		Pile *clickedPile = pileManager.GetPileAt(mousePos);
+
+		if (clickedPile != nullptr) {
+			InteractionManager::Handle(selected, clickedPile, score,
+									   &pileManager.GetPlayerPile(P_PLAYER),
+									   pileManager.GetDungeonPiles(),
+									   pileManager.GetMasterDeck(),
+									   cardsDefeated);
 		}
 	}
 
@@ -78,78 +102,41 @@ void Game::Update() {
 		gameState = GameState::LOSE;
 	}
 }
-
-void Game::Draw() {
+void Game::DrawPlay() {
 	pileManager.DrawAll(textureManager, selected);
 
-	if (gameState == GameState::LOSE) {
-		DrawLose();
-	}
-
-	if (gameState == GameState::WIN) {
-		DrawWin();
-	}
-
-	Ui::DrawMessageBox(pileManager.GetCardAt(GetMousePosition()));
+	Ui::DrawMessageBox(pileManager.GetCardAt(GetMousePosition()), score);
 
 	goBackButton.Draw(textureManager.getCustonFont());
-
-	Ui::DrawProgressBar(pileManager.GetMasterDeckSize(), cardsDefeated);
-
-	std::cout << cardsDefeated << "  /   " << pileManager.GetMasterDeckSize()
-			  << std::endl;
 }
 
-void Game::DrawLose() {
-	int barHeight = 100;
-	int barY = GetScreenHeight() / 2 - barHeight / 2;
+void Game::DrawWinLose() {
+	const char *text = TextFormat("Game won \n Score %d", score);
 
-	DrawRectangle(0, barY, GetScreenWidth(), barHeight, Color{0, 0, 0, 200});
+	int width = 300;
+	int height = 300;
 
-	const char *measage = "GAME LOST";
-	int fontSize = 30;
-	int textWidth = MeasureText(measage, fontSize);
+	Rectangle rect = {static_cast<float>(GetScreenWidth() / 2 - width / 2),
+					  static_cast<float>(GetScreenHeight() / 2 - height / 2),
+					  static_cast<float>(width), static_cast<float>(height)};
 
-	int textY = barY + barHeight / 2 - fontSize / 2;
-	int textX = GetScreenWidth() / 2 - textWidth / 2;
+	Ui::DrawMessageRect(rect, text, 4.0F, textureManager.getCustonFont());
 
-	DrawText(measage, textX, textY, fontSize, RED);
-
-	const char *meseage2 =
-		TextFormat("PRESS SPACE TO RETURN TO MENU      SCORE:  %d", score);
-
-	fontSize = 20;
-	textWidth = MeasureText(meseage2, fontSize);
-
-	textY = barY + barHeight / 2 - fontSize / 2;
-	textX = GetScreenWidth() / 2 - textWidth / 2;
-
-	DrawText(meseage2, textX, textY + 30, fontSize, RED);
+	returnToMenuButton.Draw(textureManager.getCustonFont());
 }
 
-void Game::DrawWin() {
-	int barHeight = 100;
-	int barY = GetScreenHeight() / 2 - barHeight / 2;
+void Game::UpdateWinLose() {
+	int btnW = 300;
+	int btnH = 100;
 
-	DrawRectangle(0, barY, GetScreenWidth(), barHeight, Color{0, 0, 0, 200});
+	returnToMenuButton.rect = {
+		.x = static_cast<float>(GetScreenWidth() / 2 - btnW / 2),
+		.y = static_cast<float>(GetScreenHeight() * 0.85f - btnH),
+		.width = static_cast<float>(btnW),
+		.height = static_cast<float>(btnH)};
 
-	const char *measage = "GAME WON";
-	int fontSize = 30;
-	int textWidth = MeasureText(measage, fontSize);
-
-	int textY = barY + barHeight / 2 - fontSize / 2;
-	int textX = GetScreenWidth() / 2 - textWidth / 2;
-
-	DrawText(measage, textX, textY, fontSize, BLUE);
-
-	const char *meseage2 =
-		TextFormat("PRESS SPACE TO RETURN TO MENU      SCORE:  %d", score);
-
-	fontSize = 20;
-	textWidth = MeasureText(meseage2, fontSize);
-
-	textY = barY + barHeight / 2 - fontSize / 2;
-	textX = GetScreenWidth() / 2 - textWidth / 2;
-
-	DrawText(meseage2, textX, textY + 30, fontSize, BLUE);
+	returnToMenuButton.Update(GetMousePosition());
+	if (returnToMenuButton.IsClicked(GetMousePosition())) {
+		shouldReturnToMenu = true;
+	}
 }

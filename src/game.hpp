@@ -39,11 +39,15 @@ class Game {
 	int score;
 
 	Button goBackButton;
+	Button returnToMenuButton;
 
 	Pile *selected = nullptr;
 
-	void DrawLose();
-	void DrawWin();
+	void UpdatePlay();
+	void DrawPlay();
+
+	void DrawWinLose();
+	void UpdateWinLose();
 
 	bool shouldReturnToMenu;
 	int cardsDefeated;

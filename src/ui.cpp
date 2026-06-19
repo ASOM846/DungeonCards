@@ -12,12 +12,14 @@ void Ui::DrawBackground(const Texture2D &texture) {
 	DrawTexturePro(texture, src, dst, {0, 0}, 0.0f, WHITE);
 }
 
-void Ui::DrawMessageBox(const Card *card) {
-	if (card == nullptr) {
-		return;
+void Ui::DrawMessageBox(const Card *card, const int &score) {
+	const char *text;
+	if (card != nullptr) {
+		text = card->description.c_str();
+	} else {
+		text = TextFormat("SCORE:  %d", score);
 	}
 
-	const char *text = card->description.c_str();
 	float fontSize = 20.0f;
 	float fontSpacing = 1.0f;
 	Font font = GetFontDefault();
@@ -145,4 +147,19 @@ void Ui::DrawProgressBar(float maxVal, float currentVal) {
 		DrawRectangleLines(pointerX - pInnerSize / 2, pointerY - pInnerSize / 2,
 						   pInnerSize, pInnerSize, parchment);
 	}
+}
+
+void Ui::DrawTitle(const char *text, const Font &font) {
+	float fontSize = 60;
+	float fontSpacing = 1;
+
+	Vector2 textM = MeasureTextEx(font, text, fontSize, fontSpacing);
+
+	Vector2 textPos = {GetScreenWidth() / 2 - textM.x / 2,
+					   static_cast<float>(GetScreenHeight() - fontSize * 1.5)};
+
+	DrawTextEx(font, text, {textPos.x + 4.0f, textPos.y + 4.0f}, fontSize,
+			   fontSpacing, Color{0, 0, 0, 100});
+	DrawTextEx(font, text, textPos, fontSize, fontSpacing,
+			   CLITERAL(Color){245, 237, 215, 255});
 }

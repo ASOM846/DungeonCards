@@ -26,54 +26,10 @@ void PileManager::Reset() {
 
 void PileManager::Init() {
 
-	int spacing = 20;
-	int offsetY = 100;
-
-	int screenWidth = GetScreenWidth();
-	int screenHeight = GetScreenHeight();
-
 	Reset();
 
-	int totalWidth = (D_COUNT * pileWidth) + ((D_COUNT - 1) * spacing);
-	int startX = (screenWidth - totalWidth) / 2;
+	UpdatePilesOffset();
 
-	for (int i = 0; i < D_COUNT; i++) {
-		dungeonPiles[i].position = {
-			.x = (float)(startX + i * (pileWidth + spacing)),
-			.y = 20.0f + offsetY};
-		dungeonPiles[i].width = pileWidth;
-		dungeonPiles[i].height = pileHeight;
-		dungeonPiles[i].isDiscardPile = false;
-		dungeonPiles[i].isDungeonPile = true;
-	}
-
-	discardPile[0].position = {
-		.x = static_cast<float>(startX + totalWidth + spacing * 3),
-		.y = static_cast<float>(20.0f + offsetY) - 25.0f};
-	discardPile[0].width = pileWidth;
-	discardPile[0].height = pileHeight;
-	discardPile->isDiscardPile = true;
-
-	totalWidth = (P_COUNT * pileWidth) + ((P_COUNT - 1) * spacing);
-	startX = (screenWidth - totalWidth) / 2;
-
-	for (int i = 0; i < P_COUNT; i++) {
-		playerPiles[i].position = {
-			.x = (float)(startX + i * (pileWidth + spacing)),
-			.y = 310.0f + offsetY};
-		playerPiles[i].width = pileWidth;
-		playerPiles[i].height = pileHeight;
-		playerPiles[i].isDiscardPile = false;
-		if (i == P_LEFT) {
-			playerPiles[i].isLeftHand = true;
-		} else if (i == P_RIGHT) {
-			playerPiles[i].isRightHand = true;
-		} else if (i == P_BACKPACK) {
-			playerPiles[i].isBackpack = true;
-		}
-	}
-
-	// losowanie master decku
 	struct CardTemplate {
 		CardType type;
 		Element element;
@@ -173,6 +129,60 @@ void PileManager::DrawAll(TextureManager &tm, Pile *selectedPile) {
 
 	bool isDiscard = false;
 	discardPile[0].Draw(tm, isDiscard);
+}
+
+void PileManager::UpdatePilesOffset() {
+	int spacing = 20;
+	int offsetY = 100;
+
+	int screenWidth = GetScreenWidth();
+	int screenHeight = GetScreenHeight();
+
+	float totalHeight = (2.0f * pileHeight) + spacing;
+	float startY = ((screenHeight - totalHeight) / 2.0f) - 30.0f;
+
+	startY = std::max(startY, 40.0F);
+
+	int totalWidth = (D_COUNT * pileWidth) + ((D_COUNT - 1) * spacing);
+	int startX = (screenWidth - totalWidth) / 2;
+
+	for (int i = 0; i < D_COUNT; i++) {
+		dungeonPiles[i].position = {
+			.x = (float)(startX + i * (pileWidth + spacing)), .y = startY};
+		dungeonPiles[i].width = pileWidth;
+		dungeonPiles[i].height = pileHeight;
+		dungeonPiles[i].isDiscardPile = false;
+		dungeonPiles[i].isDungeonPile = true;
+	}
+
+	discardPile[0].position = {
+		.x = static_cast<float>(startX + totalWidth + spacing * 3),
+		.y = startY - 25.0F};
+	discardPile[0].width = pileWidth;
+	discardPile[0].height = pileHeight;
+	discardPile->isDiscardPile = true;
+
+	float playerRowY = startY + pileHeight + spacing;
+
+	for (int i = 0; i < P_COUNT; i++) {
+		playerPiles[i].position = {
+			.x = (float)(startX + i * (pileWidth + spacing)), .y = playerRowY};
+		playerPiles[i].width = pileWidth;
+		playerPiles[i].height = pileHeight;
+		playerPiles[i].isDiscardPile = false;
+
+		playerPiles[i].isLeftHand = false;
+		playerPiles[i].isRightHand = false;
+		playerPiles[i].isBackpack = false;
+
+		if (i == P_LEFT) {
+			playerPiles[i].isLeftHand = true;
+		} else if (i == P_RIGHT) {
+			playerPiles[i].isRightHand = true;
+		} else if (i == P_BACKPACK) {
+			playerPiles[i].isBackpack = true;
+		}
+	}
 }
 
 Pile *PileManager::GetPileAt(Vector2 mousePos) {

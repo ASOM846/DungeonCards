@@ -16,6 +16,8 @@ class PileManager {
 	void UpdatePiles();
 	void DrawAll(TextureManager &tm, Pile *selectedPile);
 
+	void UpdatePilesOffset();
+
 	Card *GetCardAt(Vector2 mousePos);
 
 	Pile *GetPileAt(Vector2 mousePos);
