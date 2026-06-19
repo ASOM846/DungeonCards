@@ -11,7 +11,7 @@ void Game::Init() {
 
 void Game::Reset() {
 	score = 0;
-	gameState = GameState::Menu;
+	gameState = GameState::PLAYING;
 
 	pileManager.Init();
 }
@@ -82,30 +82,8 @@ void Game::Draw() {
 				 pileManager.GetMasterDeckSize());
 	}
 
-	if (gameState == GameState::Menu)
-		DrawMenu();
-
 	Ui::DrawMessageBox(pileManager.GetCardAt(GetMousePosition()));
 }
-
-void Game::DrawMenu() {
-	Vector2 mousePos = GetMousePosition();
-	const int buttonWidth = 200;
-	const int buttonHeight = 70;
-
-	Rectangle playButtonRect = {GetScreenWidth() / 2.0f - buttonWidth / 2.0f,
-								GetScreenHeight() / 2.0f, buttonWidth,
-								buttonHeight};
-
-	Ui::DrawMessageRect(playButtonRect, "PLAY");
-
-	if (CheckCollisionPointRec(mousePos, playButtonRect) &&
-		IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-
-		gameState = GameState::PLAYING;
-}
-
-void Game::UpdateMenu() {}
 
 void Game::DrawLose() {
 	int barHeight = 100;

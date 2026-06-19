@@ -1,12 +1,16 @@
 #include "windowManager.hpp"
+#include "menu.hpp"
 #include <raylib.h>
 
 void WindowManager::Init() {
 	InitWindow(screenWidth, screenHeight, windowTitle);
 
-	SetTargetFPS(60);
+	SetTargetFPS(targetFPS);
+
+	windowState = WindowState::MENU;
 
 	game.Init();
+	menu.Init();
 }
 
 void WindowManager::Run() {
@@ -19,9 +23,39 @@ void WindowManager::Run() {
 }
 
 void WindowManager::Update() {
-	game.Update();
+	switch (windowState) {
+	case WindowState::MENU: {
+		MenuUpdateResoult resoult = menu.Update();
+		if (resoult == MenuUpdateResoult::PLAY)
+			SwitchState(WindowState::GAME);
+		break;
+	}
+	case WindowState::GAME: {
+		game.Update();
+		break;
+	}
+	}
 }
 
 void WindowManager::Render() {
-	game.Draw();
+	BeginDrawing();
+	ClearBackground(BLACK);
+
+	switch (windowState) {
+	case WindowState::MENU:
+		menu.Draw();
+		break;
+	case WindowState::GAME:
+		game.Draw();
+		break;
+	}
+
+	EndDrawing();
+}
+
+void WindowManager::SwitchState(const WindowState newState) {
+	if (windowState == newState)
+		return;
+	else
+		windowState = newState;
 }

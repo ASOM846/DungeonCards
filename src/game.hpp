@@ -5,7 +5,6 @@
 #include <raylib.h>
 
 enum class GameState {
-	Menu,
 	PLAYING,
 	WIN,
 	LOSE
@@ -35,8 +34,6 @@ class Game {
 	int score;
 
 	Pile *selected = nullptr;
-	void DrawMenu();
-	void UpdateMenu();
 
 	void DrawLose();
 	void DrawWin();

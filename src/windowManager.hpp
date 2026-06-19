@@ -1,6 +1,13 @@
 #pragma once
 
 #include "game.hpp"
+#include "menu.hpp"
+
+enum class WindowState {
+	GAME,
+	MENU,
+};
+
 class WindowManager {
   public:
 	WindowManager() = default;
@@ -13,11 +20,16 @@ class WindowManager {
 	void Update();
 	void Render();
 
+	void SwitchState(const WindowState newState);
+
   private:
+	WindowState windowState;
+
 	const int screenWidth = 1200;
 	const int screenHeight = 800;
 	const char *windowTitle = "DungeonCards";
 	const int targetFPS = 60;
 
 	Game game;
+	Menu menu;
 };
