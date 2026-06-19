@@ -30,6 +30,8 @@ enum class TextureId {
 	WeaponGoldenSword,
 	WeaponHammer,
 	WeaponSword,
+	WeaponWandFire,
+	WeaponWandIce,
 	Background,
 	Vinete,
 };
@@ -72,6 +74,8 @@ class TextureManager {
 		load(TextureId::WeaponGoldenSword, "assets/weaponGoldenSword.png");
 		load(TextureId::WeaponHammer, "assets/weaponHammer.png");
 		load(TextureId::WeaponSword, "assets/weaponSword.png");
+		load(TextureId::WeaponWandFire, "assets/weaponWandFire.png");
+		load(TextureId::WeaponWandIce, "assets/weaponWandIce.png");
 		load(TextureId::Background, "assets/bcg4.png");
 		load(TextureId::Vinete, "assets/vinete2.png");
 	}

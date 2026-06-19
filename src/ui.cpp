@@ -11,21 +11,6 @@ void Ui::Draw(const int &hp, const int &score, const int &cardsRemaining) {
 			 GetScreenHeight() - 40, 20, VIOLET);
 }
 
-void Ui::DrawHoveredCardInfo(const Card *card) {
-	if (card == nullptr) {
-		return;
-	}
-
-	const char *cardDsc = card->description.c_str();
-
-	int fontSize = 20;
-
-	int width = MeasureText(cardDsc, fontSize);
-	TraceLog(LOG_INFO, "DRAWED INFO=========================");
-	DrawText(cardDsc, GetScreenWidth() - width - 50, GetScreenHeight() - 40,
-			 fontSize, RED);
-}
-
 void Ui::DrawMessageBox(const Card *card) {
 	if (card == nullptr) {
 		return;
@@ -48,6 +33,10 @@ void Ui::DrawMessageBox(const Card *card) {
 	dst.x = GetScreenWidth() - dst.width - 20;
 	dst.y = GetScreenHeight() - dst.height - 20;
 
+	DrawMessageRect(dst, text);
+}
+
+void Ui::DrawMessageRect(const Rectangle &dst, const char *text) {
 	const auto shadow = Color{0, 0, 0, 100};
 	const auto darkWood = Color{60, 30, 15, 255};
 	const auto parchment = Color{220, 200, 170, 255};
@@ -92,6 +81,12 @@ void Ui::DrawMessageBox(const Card *card) {
 	DrawCircle(tr.x, tr.y, niteRadius, darkWood);
 	DrawCircle(bl.x, bl.y, niteRadius, darkWood);
 	DrawCircle(br.x, br.y, niteRadius, darkWood);
+
+	float fontSize = 20.0f;
+	float fontSpacing = 1.0f;
+	Font font = GetFontDefault();
+
+	Vector2 textSize = MeasureTextEx(font, text, fontSize, fontSpacing);
 
 	float textX = (dst.x + dst.width / 2.0f) - (textSize.x / 2.0f);
 	float textY = (dst.y + dst.height / 2.0f) - (textSize.y / 2.0f);

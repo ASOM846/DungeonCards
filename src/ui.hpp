@@ -10,7 +10,7 @@ class Ui {
 
 	static void Draw(const int &hp, const int &score,
 					 const int &cardsRemaining);
-	static void DrawHoveredCardInfo(const Card *card);
 
 	static void DrawMessageBox(const Card *card);
+	static void DrawMessageRect(const Rectangle &dst, const char *text);
 };

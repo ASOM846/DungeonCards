@@ -94,10 +94,11 @@ void PileManager::Init() {
 		for (int i = 0; i < 2; i++)
 			finalCardPool.push_back({CardType::ENEMY, Element::FIRE});
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 1; i++)
 			finalCardPool.push_back({CardType::POTION, Element::NONE});
 
-		finalCardPool.push_back({CardType::WEAPON, Element::NONE});
+		for (int i = 0; i < 2; i++)
+			finalCardPool.push_back({CardType::WEAPON, Element::NONE});
 
 		for (int i = 0; i < 2; i++) {
 			finalCardPool.push_back({CardType::SPELL, Element::NONE});
@@ -252,6 +253,8 @@ TextureId PileManager::GetRandomMonsterTexture() {
 Card PileManager::GetRandomSpell() {
 	std::vector<Element> elements;
 	elements.push_back(Element::LIFESTEAL);
+	elements.push_back(Element::LIFESTEAL);
+
 	elements.push_back(Element::WARHAMMER);
 	elements.push_back(Element::ESCAPE);
 
@@ -266,11 +269,11 @@ Card PileManager::GetRandomSpell() {
 	switch (selectedElement) {
 	case Element::LIFESTEAL:
 		TraceLog(LOG_INFO, "LIFESTEAL init");
-		c.value = GetRandomValue(4, 10);
+		c.value = GetRandomValue(6, 12);
 		break;
 	case Element::WARHAMMER:
 		TraceLog(LOG_INFO, "WARHAMMER init");
-		c.value = 3;
+		c.value = 1;
 		break;
 	case Element::ESCAPE:
 		TraceLog(LOG_INFO, "ESCAPE init");
@@ -340,6 +343,7 @@ Card PileManager::GenerateCardData(const CardType type, const Element element) {
 			c.name = "FIRE WAND";
 			c.description = "FIRE WAND - DEALS DOUBLE DAMAGE TO ICE. DEALS NO "
 							"DAMAGE TO FIRE";
+			c.textureId = TextureId::WeaponWandFire;
 		}
 		break;
 	case CardType::SHIELD:

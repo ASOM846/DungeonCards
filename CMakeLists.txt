@@ -109,6 +109,14 @@ if(NOT RAYLIB_TARGET)
 endif()
 
 target_link_libraries(mineswepper PRIVATE ${RAYLIB_TARGET})
+# --- Automatyczne kopiowanie folderu assets do folderu binarnego ------------
+add_custom_command(
+    TARGET mineswepper POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_SOURCE_DIR}/assets"
+            "$<TARGET_FILE_DIR:mineswepper>/assets"
+    COMMENT "Kopiowanie folderu assets do katalogu wyjściowego..."
+)
 
 # --- Drobne ustawienia kompilatora (opcjonalne) ----------------------------
 if(MSVC)
@@ -123,9 +131,3 @@ message(STATUS "FAST_BUILD = ${FAST_BUILD}")
 message(STATUS "CMake generator: ${CMAKE_GENERATOR}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "CMake version: ${CMAKE_VERSION}")
-
-# Rekomendacja:
-#  - zainstaluj: sudo apt install ninja-build ccache    (albo sccache)
-#  - konfiguracja: cmake -S . -B build -G Ninja
-#  - build: cmake --build build --parallel $(nproc)
-#  - aby wymusić wyłączenie FAST_BUILD: cmake -S . -B build -G Ninja -DFAST_BUILD=OFF

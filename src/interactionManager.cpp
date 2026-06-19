@@ -27,6 +27,9 @@ bool InteractionManager::ShouldHighlight(Pile *selected, Pile *target) {
 		return (target->isRightHand || target->isLeftHand);
 	}
 
+	if (selected->isDungeonPile && target->isDungeonPile)
+		return false;
+
 	if (selType == CardType::ENEMY) {
 		return (tarType == CardType::PLAYER || tarType == CardType::SHIELD);
 	}
