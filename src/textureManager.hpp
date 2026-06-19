@@ -7,6 +7,8 @@
 
 enum class TextureId {
 	Coin,
+	HandL,
+	HandR,
 	Knight1,
 	Enemy1,
 	Enemy2,
@@ -47,6 +49,8 @@ class TextureManager {
 
 	void loadAll() {
 		load(TextureId::Coin, "assets/coin.png");
+		load(TextureId::HandL, "assets/handL.png");
+		load(TextureId::HandR, "assets/handR.png");
 		load(TextureId::Knight1, "assets/knight1.png");
 		load(TextureId::Enemy1, "assets/enemy1.png");
 		load(TextureId::Enemy2, "assets/enemy2.png");

@@ -3,19 +3,36 @@
 #include <raylib.h>
 
 bool InteractionManager::ShouldHighlight(Pile *selected, Pile *target) {
-	if (selected == nullptr || selected == target)
+	if (selected == nullptr || selected == target) {
 		return false;
-	if (selected->IsEmpty() || target->IsEmpty())
+	}
+	if (selected->IsEmpty()) {
 		return false;
+	}
 
 	CardType selType = selected->Back().type;
+
+	if (target->IsEmpty()) {
+		if (target->isLeftHand || target->isRightHand || target->isBackpack) {
+			return (selType == CardType::WEAPON || selType == CardType::WAND ||
+					selType == CardType::POTION ||
+					selType == CardType::SHIELD || selType == CardType::SPELL);
+		}
+		return false;
+	}
+
 	CardType tarType = target->Back().type;
+
+	if (selected->isBackpack) {
+		return (target->isRightHand || target->isLeftHand);
+	}
 
 	if (selType == CardType::ENEMY) {
 		return (tarType == CardType::PLAYER || tarType == CardType::SHIELD);
 	}
 
-	if (selType == CardType::WEAPON || selType == CardType::WAND) {
+	if ((selType == CardType::WEAPON && !selected->isBackpack) ||
+		selType == CardType::WAND) {
 		return (tarType == CardType::ENEMY);
 	}
 
@@ -137,6 +154,9 @@ void InteractionManager::ResolveWeaponVsEnemy(Pile *selected, Pile *target,
 											  Card &sel, Card &tar, int &score,
 											  Pile *playerPile,
 											  std::vector<Card> &masterDeck) {
+	if (selected->isBackpack)
+		return;
+
 	if (sel.value >= tar.value) {
 		score += tar.value;
 

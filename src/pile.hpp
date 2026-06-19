@@ -16,6 +16,9 @@ struct Pile {
 	int height;
 
 	bool isDiscardPile = false;
+	bool isLeftHand = false;
+	bool isRightHand = false;
+	bool isBackpack = false;
 
 	bool isDungeonPile = false;
 
@@ -24,7 +27,7 @@ struct Pile {
 
 	void Draw(TextureManager &tm, bool isSelected, bool isHighlited = false);
 
-	void DrawCardBackground();
+	void DrawCardBackground(Vector2 position);
 
 	void DrawEnemy(const int &centerX, const int &centerY, Color color);
 };

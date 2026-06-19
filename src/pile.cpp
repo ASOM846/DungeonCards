@@ -5,10 +5,84 @@
 #include <raylib.h>
 
 void Pile::Draw(TextureManager &tm, bool isSelected, bool isHighlited) {
+	Vector2 renderPos = position;
+
+	bool isMouseOver = CheckCollisionPointRec(
+		GetMousePosition(), {position.x, position.y, static_cast<float>(width),
+							 static_cast<float>(height)});
+
+	float shadowOffset = 4.0f;
+
+	if ((isMouseOver || isSelected) && !IsEmpty()) {
+		renderPos.y -= 12.0f;
+		shadowOffset = 14.0f;
+	}
+
+	float cLen = 14.0f;
+	float cThick = 4.0f;
+	float g = 4.0f;
+
+	Color goldColor = {0, 0, 0, 0};
+	bool drawCorners = false;
+
+	if (isSelected) {
+		goldColor = Color{230, 140, 30, 255};
+		drawCorners = true;
+	} else if (isHighlited) {
+		goldColor = Color{40, 200, 110, 255};
+		drawCorners = true;
+	}
+
+	if (drawCorners) {
+		DrawLineEx({renderPos.x - g, renderPos.y - g},
+				   {renderPos.x - g + cLen, renderPos.y - g}, cThick,
+				   goldColor);
+		DrawLineEx({renderPos.x - g, renderPos.y - g},
+				   {renderPos.x - g, renderPos.y - g + cLen}, cThick,
+				   goldColor);
+		DrawLineEx({renderPos.x + width + g, renderPos.y - g},
+				   {renderPos.x + width + g - cLen, renderPos.y - g}, cThick,
+				   goldColor);
+		DrawLineEx({renderPos.x + width + g, renderPos.y - g},
+				   {renderPos.x + width + g, renderPos.y - g + cLen}, cThick,
+				   goldColor);
+		DrawLineEx({renderPos.x - g, renderPos.y + height + g},
+				   {renderPos.x - g + cLen, renderPos.y + height + g}, cThick,
+				   goldColor);
+		DrawLineEx({renderPos.x - g, renderPos.y + height + g},
+				   {renderPos.x - g, renderPos.y + height + g - cLen}, cThick,
+				   goldColor);
+		DrawLineEx({renderPos.x + width + g, renderPos.y + height + g},
+				   {renderPos.x + width + g - cLen, renderPos.y + height + g},
+				   cThick, goldColor);
+		DrawLineEx({renderPos.x + width + g, renderPos.y + height + g},
+				   {renderPos.x + width + g, renderPos.y + height + g - cLen},
+				   cThick, goldColor);
+	}
+
 	if (cards.empty()) {
 
-		DrawCardBackground();
+		DrawCardBackground(position);
 
+		if (isLeftHand || isRightHand) {
+			const Texture2D &handLTex = tm.get(TextureId::HandL);
+			const Texture2D &handRTex = tm.get(TextureId::HandR);
+
+			float emptyScale = 3.0f;
+
+			float centerX = position.x + width / 2;
+			float centerY = position.y + height / 2;
+
+			float handX = centerX - (handLTex.width * emptyScale) / 2.0f;
+			float handY = centerY - (handLTex.height * emptyScale) / 2.0f;
+
+			if (isLeftHand)
+				DrawTextureEx(handLTex, {handX, handY}, 0.0f, emptyScale,
+							  Fade(RAYWHITE, 0.4f));
+			if (isRightHand)
+				DrawTextureEx(handRTex, {handX, handY}, 0.0f, emptyScale,
+							  Fade(RAYWHITE, 0.4f));
+		}
 		if (isDiscardPile) {
 			auto xColor = Fade(DARKGRAY, 0.6f);
 			float thicknes = 5.0f;
@@ -25,23 +99,12 @@ void Pile::Draw(TextureManager &tm, bool isSelected, bool isHighlited) {
 		return;
 	}
 
-	float centerX = position.x + width / 2.0f;
-	float centerY = position.y + height / 2.0f;
+	float centerX = renderPos.x + width / 2.0f;
+	float centerY = renderPos.y + height / 2.0f;
 
-	DrawCardBackground();
-
-	if (isSelected) {
-		DrawRectangleLinesEx(
-			{position.x, position.y, (float)width, (float)height}, 4, ORANGE);
-	}
-
-	if (isHighlited) {
-		DrawRectangleLinesEx(
-			{position.x, position.y, (float)width, (float)height}, 4, GREEN);
-	}
+	DrawCardBackground(renderPos);
 
 	const Texture2D &texture = tm.get(cards.back().textureId);
-
 	float scale = 3.0F;
 	if (cards.back().type == CardType::ENEMY ||
 		cards.back().type == CardType::PLAYER) {
@@ -57,7 +120,7 @@ void Pile::Draw(TextureManager &tm, bool isSelected, bool isHighlited) {
 	DrawTextureEx(texture, {drawX, drawY - 5 * scale}, 0.0f, scale, RAYWHITE);
 }
 
-void Pile::DrawCardBackground() {
+void Pile::DrawCardBackground(Vector2 position) {
 	float centerX = position.x + width / 2.0f;
 	float centerY = position.y + height / 2.0f;
 

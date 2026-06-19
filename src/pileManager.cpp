@@ -64,6 +64,13 @@ void PileManager::Init() {
 		playerPiles[i].width = pileWidth;
 		playerPiles[i].height = pileHeight;
 		playerPiles[i].isDiscardPile = false;
+		if (i == P_LEFT) {
+			playerPiles[i].isLeftHand = true;
+		} else if (i == P_RIGHT) {
+			playerPiles[i].isRightHand = true;
+		} else if (i == P_BACKPACK) {
+			playerPiles[i].isBackpack = true;
+		}
 	}
 
 	// losowanie master decku
@@ -135,7 +142,7 @@ void PileManager::Init() {
 	Card sword = {.name = "SWORD",
 				  .value = 5,
 				  .type = CardType::WEAPON,
-				  .textureId = TextureId::ItemShield};
+				  .textureId = TextureId::WeaponSword};
 
 	dungeonPiles[D_ONE].cards.push_back(sword);
 
@@ -341,7 +348,7 @@ Card PileManager::GenerateCardData(const CardType type, const Element element) {
 		c.textureId = TextureId::ItemShield;
 		break;
 	case CardType::POTION:
-		c.name = "POTION - HP";
+		c.name = "HP Elixir";
 		c.description = "POTION - HEALS YOU";
 		c.textureId = TextureId::FlaskRed;
 		break;
