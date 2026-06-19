@@ -15,7 +15,7 @@ A minimalist, strategic card-based roguelike dungeon crawler built from scratch 
 
 You don't need to compile the project to play it. The game has been compiled to WebAssembly (WASM) and is available to play directly in your browser:
 
-**[Play DungeonCards on itch.io]([https://TWOJ_LOGIN.itch.io/NAZWA_GRY](https://asom846.itch.io/dungeoncards))**
+**[Play DungeonCards on itch.io](https://asom846.itch.io/dungeoncards)**
 
 _On the itch.io page, you will also find more detailed information about the gameplay rules, card mechanics, and future updates._
 
