@@ -1,6 +1,16 @@
 #include "ui.hpp"
 #include <raylib.h>
 
+void Ui::DrawBackground(const Texture2D &texture) {
+	Rectangle src = {0, 0, static_cast<float>(texture.width),
+					 static_cast<float>(texture.height)};
+
+	Rectangle dst = {0, 0, static_cast<float>(GetScreenWidth()),
+					 static_cast<float>(GetScreenHeight())};
+
+	DrawTexturePro(texture, src, dst, {0, 0}, 0.0f, WHITE);
+}
+
 void Ui::Draw(const int &hp, const int &score, const int &cardsRemaining) {
 	DrawText(TextFormat("HP: %d", hp), 40, GetScreenHeight() - 40, 20, RED);
 
@@ -36,13 +46,16 @@ void Ui::DrawMessageBox(const Card *card) {
 	DrawMessageRect(dst, text);
 }
 
-void Ui::DrawMessageRect(const Rectangle &dst, const char *text) {
+void Ui::DrawMessageRect(const Rectangle &dst, const char *text,
+						 float shadowOffset, const Font &font) {
+
 	const auto shadow = Color{0, 0, 0, 100};
 	const auto darkWood = Color{60, 30, 15, 255};
 	const auto parchment = Color{220, 200, 170, 255};
 	const auto goldAccent = Color{180, 130, 40, 255};
 
-	DrawRectangle(dst.x + 4, dst.y + 4, dst.width, dst.height, shadow);
+	DrawRectangle(dst.x + shadowOffset, dst.y + shadowOffset, dst.width,
+				  dst.height, shadow);
 	DrawRectangle(dst.x, dst.y, dst.width, dst.height, darkWood);
 
 	const float border = 6;
@@ -82,9 +95,8 @@ void Ui::DrawMessageRect(const Rectangle &dst, const char *text) {
 	DrawCircle(bl.x, bl.y, niteRadius, darkWood);
 	DrawCircle(br.x, br.y, niteRadius, darkWood);
 
-	float fontSize = 20.0f;
+	float fontSize = 40.0f;
 	float fontSpacing = 1.0f;
-	Font font = GetFontDefault();
 
 	Vector2 textSize = MeasureTextEx(font, text, fontSize, fontSpacing);
 

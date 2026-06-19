@@ -23,6 +23,8 @@ class Game {
 	void Update();
 	void Draw();
 
+	TextureManager *GetTextureManager() { return &textureManager; }
+
   private:
 	TextureManager textureManager;
 

@@ -41,9 +41,12 @@ void WindowManager::Render() {
 	BeginDrawing();
 	ClearBackground(BLACK);
 
+	Ui::DrawBackground(game.GetTextureManager()->get(TextureId::Background));
+	Ui::DrawBackground(game.GetTextureManager()->get(TextureId::Vinete));
+
 	switch (windowState) {
 	case WindowState::MENU:
-		menu.Draw();
+		menu.Draw(*game.GetTextureManager());
 		break;
 	case WindowState::GAME:
 		game.Draw();

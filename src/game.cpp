@@ -54,19 +54,6 @@ void Game::Update() {
 }
 
 void Game::Draw() {
-	// DrawTexture(textureManager.get(TextureId::Background), 0, 0, RAYWHITE);
-	DrawTextureEx(textureManager.get(TextureId::Background), {0, 0}, 0.0f, 1.0f,
-				  RAYWHITE);
-
-	const Texture2D &vinete = textureManager.get(TextureId::Vinete);
-	Rectangle src = {0, 0, static_cast<float>(vinete.width),
-					 static_cast<float>(vinete.height)};
-
-	Rectangle dst = {0, 0, static_cast<float>(GetScreenWidth()),
-					 static_cast<float>(GetScreenHeight())};
-
-	DrawTexturePro(vinete, src, dst, {0, 0}, 0.0f, WHITE);
-
 	pileManager.DrawAll(textureManager, selected);
 
 	if (gameState == GameState::LOSE) {

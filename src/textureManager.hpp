@@ -41,6 +41,8 @@ class TextureManager {
 	TextureManager() = default;
 	~TextureManager() { unloadAll(); };
 
+	Font &getCustonFont() { return customFont; }
+
 	const Texture2D &get(TextureId id) const {
 		auto it = textures.find(id);
 		if (it == textures.end()) {
@@ -78,6 +80,10 @@ class TextureManager {
 		load(TextureId::WeaponWandIce, "assets/weaponWandIce.png");
 		load(TextureId::Background, "assets/bcg4.png");
 		load(TextureId::Vinete, "assets/vinete2.png");
+
+		customFont = LoadFontEx("assets/DungeonFont.ttf", 40, nullptr, 250);
+
+		SetTextureFilter(customFont.texture, TEXTURE_FILTER_POINT);
 	}
 
 	void load(TextureId id, const char *path) {
@@ -94,6 +100,8 @@ class TextureManager {
 		}
 		textures.clear();
 	}
+
+	Font customFont;
 
 	std::unordered_map<TextureId, Texture2D> textures;
 };

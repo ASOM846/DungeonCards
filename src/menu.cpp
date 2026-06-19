@@ -1,4 +1,5 @@
 #include "menu.hpp"
+#include "textureManager.hpp"
 #include <raylib.h>
 
 void Menu::Init() {
@@ -6,7 +7,7 @@ void Menu::Init() {
 
 	UpdateButtonsPos();
 
-	playButton.text = "PLAY";
+	playButton.text = "Play";
 }
 
 void Menu::UpdateButtonsPos() {
@@ -23,6 +24,8 @@ void Menu::UpdateButtonsPos() {
 MenuUpdateResoult Menu::Update() {
 	UpdateButtonsPos();
 
+	playButton.Update(GetMousePosition());
+
 	if (playButton.IsClicked(GetMousePosition())) {
 		return MenuUpdateResoult::PLAY;
 	}
@@ -30,6 +33,22 @@ MenuUpdateResoult Menu::Update() {
 	return MenuUpdateResoult::NONE;
 }
 
-void Menu::Draw() const {
-	playButton.Draw();
+void Menu::Draw(TextureManager &tm) const {
+	DrawTitle(tm);
+
+	playButton.Draw(tm);
+}
+
+void Menu::DrawTitle(TextureManager &tm) const {
+	float fontSize = 120;
+	float fontSpacing = 1;
+	Font font = tm.getCustonFont();
+
+	Vector2 textM = MeasureTextEx(font, gameTitle, fontSize, fontSpacing);
+
+	Vector2 textPos = {GetScreenWidth() / 2 - textM.x / 2,
+					   static_cast<float>(GetScreenHeight() / 3)};
+
+	DrawTextEx(font, gameTitle, textPos, fontSize, fontSpacing,
+			   CLITERAL(Color){245, 237, 215, 255});
 }
