@@ -1,6 +1,7 @@
 #pragma once
 
 #include "textureManager.hpp"
+#include <algorithm>
 #include <raylib.h>
 #include <string>
 
@@ -48,6 +49,10 @@ struct Card {
 	std::string description;
 	int value;
 	int maxValue = -1;
+
+	int durability;
+	int maxDurability;
+
 	CardType type;
 	Element element;
 
@@ -60,8 +65,6 @@ struct Card {
 			return;
 		}
 
-		if (value >= maxValue) {
-			value = maxValue;
-		}
+		value = std::min(value, maxValue);
 	}
 };

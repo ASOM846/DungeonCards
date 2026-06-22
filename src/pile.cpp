@@ -118,6 +118,31 @@ void Pile::Draw(TextureManager &tm, bool isSelected, bool isHighlited) {
 	float drawY = centerY - (texture.height * scale) / 2.0f;
 
 	DrawTextureEx(texture, {drawX, drawY - 5 * scale}, 0.0f, scale, RAYWHITE);
+
+	if (cards.back().maxDurability > 0) {
+		int maxDur = cards.back().maxDurability;
+		int curDur = cards.back().durability;
+
+		float pipRadius = 5.0f;
+		float pipSpacing = 14.0f;
+
+		float totalWidth = (maxDur - 1) * pipSpacing;
+		float startX = centerX - (totalWidth / 2.0f);
+
+		float pipY = drawY + (texture.height * scale) + 8.0f;
+
+		for (int i = 0; i < maxDur; i++) {
+			Vector2 pipCenter = {startX + (i * pipSpacing), pipY};
+
+			Color pipColor = (i < curDur) ? Color{230, 140, 30, 255}
+										  : Color{60, 60, 50, 255};
+
+			DrawPoly(pipCenter, 4, pipRadius, 0.0f, pipColor);
+
+			DrawPolyLinesEx(pipCenter, 4, pipRadius, 0.0f, 1.0f,
+							Color{20, 20, 20, 200});
+		}
+	}
 }
 
 void Pile::DrawCardBackground(Vector2 position) {

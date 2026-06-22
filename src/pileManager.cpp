@@ -82,13 +82,16 @@ void PileManager::Init() {
 		} else {
 			card = GenerateCardData(tmp.type, tmp.element);
 
-			if (card.type == CardType::ENEMY)
+			if (card.type == CardType::ENEMY) {
 				card.value = GetRandomValue(2, 10);
-			else if (card.type == CardType::POTION)
+			} else if (card.type == CardType::POTION)
 				card.value = GetRandomValue(2, 10);
 			else if (card.type == CardType::COIN)
 				card.value = GetRandomValue(1, 12);
-			else
+			else if (card.type == CardType::WEAPON) {
+				card.durability = 3;
+				card.maxDurability = 3;
+			} else
 				card.value = GetRandomValue(3, 9);
 		}
 		masterDeck.push_back(card);
