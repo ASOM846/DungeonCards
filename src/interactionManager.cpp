@@ -1,4 +1,5 @@
 #include "interactionManager.hpp"
+#include "screenShake.hpp"
 #include "types.hpp"
 #include <raylib.h>
 
@@ -58,7 +59,7 @@ bool InteractionManager::ShouldHighlight(Pile *selected, Pile *target) {
 void InteractionManager::Handle(Pile *&selected, Pile *target, int &score,
 								Pile *playerPile, Pile *dungeonPiles,
 								std::vector<Card> &masterDeck,
-								int &cardsDefeated) {
+								int &cardsDefeated, ScreenShake &screenShake) {
 	if (selected == nullptr) {
 		if (!target->cards.empty() && !target->isDiscardPile) {
 			selected = target;
@@ -99,7 +100,7 @@ void InteractionManager::Handle(Pile *&selected, Pile *target, int &score,
 	}
 
 	ResolveCardInteraction(selected, target, score, playerPile, masterDeck,
-						   dungeonPiles, cardsDefeated);
+						   dungeonPiles, cardsDefeated, screenShake);
 	selected = nullptr;
 }
 
@@ -119,7 +120,8 @@ void InteractionManager::ResolveCardInteraction(Pile *selected, Pile *target,
 												int &score, Pile *playerPile,
 												std::vector<Card> &masterDeck,
 												Pile *dungeonPiles,
-												int &cardsDefeated) {
+												int &cardsDefeated,
+												ScreenShake &screenShake) {
 	Card &sel = selected->cards.back();
 	Card &tar = target->cards.back();
 
@@ -141,6 +143,14 @@ void InteractionManager::ResolveCardInteraction(Pile *selected, Pile *target,
 		ResolveSpellVsEnemy(selected, target, sel, tar, score, playerPile,
 							masterDeck, dungeonPiles, cardsDefeated);
 	} else {
+	}
+
+	if (sel.type == CardType::ENEMY && tar.type == CardType::PLAYER) {
+		screenShake.trigger(2.0f, 0.2f);
+	}
+
+	if (sel.type == CardType::WEAPON && tar.type == CardType::ENEMY) {
+		screenShake.trigger(2.0f, 0.2f);
 	}
 }
 

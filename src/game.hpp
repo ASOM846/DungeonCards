@@ -1,6 +1,8 @@
 #pragma once
+
 #include "button.hpp"
 #include "pileManager.hpp"
+#include "screenShake.hpp"
 #include "textureManager.hpp"
 #include "ui.hpp"
 #include <raylib.h>
@@ -30,6 +32,7 @@ class Game {
 
   private:
 	TextureManager textureManager;
+	ScreenShake screenShake;
 
 	PileManager pileManager;
 	Ui ui;
@@ -42,6 +45,8 @@ class Game {
 	Button returnToMenuButton;
 
 	Pile *selected = nullptr;
+
+	Camera2D boardCamera;
 
 	void UpdatePlay();
 	void DrawPlay();

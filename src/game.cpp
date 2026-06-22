@@ -26,9 +26,18 @@ void Game::Reset() {
 	shouldReturnToMenu = false;
 
 	pileManager.Init();
+
+	boardCamera.target = {.x = 0.0F, .y = 0.0F};
+	boardCamera.offset = {.x = 0.0F, .y = 0.0F};
+	boardCamera.rotation = 0.0F;
+	boardCamera.zoom = 1.0F;
 }
 
 void Game::Update() {
+	if (IsKeyPressed(KEY_SPACE)) {
+		screenShake.trigger(50.0f, 2.0f);
+	}
+
 	if (gameState == GameState::PLAYING) {
 		UpdatePlay();
 	}
@@ -39,11 +48,16 @@ void Game::Update() {
 }
 
 void Game::Draw() {
-
 	Ui::DrawTitle("DungeonCards", textureManager.getCustonFont());
 
 	if (gameState == GameState::PLAYING) {
+		boardCamera.offset = screenShake.offset;
+
+		BeginMode2D(boardCamera);
+
 		DrawPlay();
+
+		EndMode2D();
 	}
 
 	if (gameState == GameState::LOSE || gameState == GameState::WIN) {
@@ -54,6 +68,8 @@ void Game::Draw() {
 }
 
 void Game::UpdatePlay() {
+	screenShake.update(GetFrameTime());
+
 	Pile &playerPile = pileManager.GetPlayerPile(P_PLAYER);
 	if (!playerPile.IsEmpty()) {
 		if (playerPile.Back().value <= 0) {
@@ -82,7 +98,7 @@ void Game::UpdatePlay() {
 									   &pileManager.GetPlayerPile(P_PLAYER),
 									   pileManager.GetDungeonPiles(),
 									   pileManager.GetMasterDeck(),
-									   cardsDefeated);
+									   cardsDefeated, screenShake);
 		}
 	}
 
