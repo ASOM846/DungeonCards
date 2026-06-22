@@ -105,19 +105,26 @@ void Pile::Draw(TextureManager &tm, bool isSelected, bool isHighlited) {
 	DrawCardBackground(renderPos);
 
 	const Texture2D &texture = tm.get(cards.back().textureId);
-	float scale = 3.0F;
-	if (cards.back().type == CardType::ENEMY ||
-		cards.back().type == CardType::PLAYER) {
-		scale = 5.0F;
-	}
-	if (cards.back().textureId == TextureId::ItemShield) {
-		scale = 0.5F;
-	}
 
-	float drawX = centerX - (texture.width * scale) / 2.0f;
-	float drawY = centerY - (texture.height * scale) / 2.0f;
+	// Dynamic texture scaling to fit within the card's art area
+	float maxArtWidth = width * 0.80f;
+	float maxArtHeight = height * 0.45f;
 
-	DrawTextureEx(texture, {drawX, drawY - 5 * scale}, 0.0f, scale, RAYWHITE);
+	// Center the art in the upper portion of the card
+	float artCenterX = renderPos.x + width / 2.0f;
+	float artCenterY = renderPos.y + height * 0.40f;
+
+	float scaleX = maxArtWidth / texture.width;
+	float scaleY = maxArtHeight / texture.height;
+
+	// Maintain aspect ratio
+	float scale = (scaleX < scaleY) ? scaleX : scaleY;
+
+	// Draw the texture perfectly centered in the art box
+	float drawX = artCenterX - (texture.width * scale) / 2.0f;
+	float drawY = artCenterY - (texture.height * scale) / 2.0f;
+
+	DrawTextureEx(texture, {drawX, drawY}, 0.0f, scale, RAYWHITE);
 }
 
 void Pile::DrawCardBackground(Vector2 position) {
