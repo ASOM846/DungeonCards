@@ -119,7 +119,9 @@ void Pile::Draw(TextureManager &tm, bool isSelected, bool isHighlited) {
 
 	DrawTextureEx(texture, {drawX, drawY - 5 * scale}, 0.0f, scale, RAYWHITE);
 
-	if (cards.back().maxDurability > 0) {
+	if ((cards.back().type == CardType::WEAPON ||
+		 cards.back().type == CardType::WAND) &&
+		cards.back().maxDurability > 0 && cards.back().maxDurability != -1) {
 		int maxDur = cards.back().maxDurability;
 		int curDur = cards.back().durability;
 
@@ -213,10 +215,14 @@ void Pile::DrawCardBackground(Vector2 position) {
 	DrawCircle(position.x + width - 14, sepY, 2, darkWood);
 
 	const char *valueStr;
-	if (topCard->maxValue == -1) {
-		valueStr = TextFormat("%d", topCard->value);
+	if (topCard->maxValue == -1 || topCard->minValue == -1) {
+		valueStr = TextFormat("%d", topCard->hp);
 	} else {
-		valueStr = TextFormat("%d | %d", topCard->value, topCard->maxValue);
+		valueStr = TextFormat("%d | %d", topCard->minValue, topCard->maxValue);
+	}
+
+	if (topCard->type == CardType::PLAYER) {
+		valueStr = TextFormat("%d | %d", topCard->hp, topCard->maxValue);
 	}
 
 	const float sepYBottom = position.y + height - 46;

@@ -25,6 +25,11 @@ struct Pile {
 	[[nodiscard]] bool IsEmpty() const { return cards.empty(); }
 	[[nodiscard]] Card &Back() { return cards.back(); }
 
+	[[nodiscard]] Vector2 GetPosition() const { return position; }
+	[[nodiscard]] Vector2 GetFloatingTextPos() const {
+		return {position.x + width / 2, position.y + height / 3};
+	}
+
 	void Draw(TextureManager &tm, bool isSelected, bool isHighlited = false);
 
 	void DrawCardBackground(Vector2 position);

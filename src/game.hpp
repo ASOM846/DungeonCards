@@ -1,6 +1,7 @@
 #pragma once
 
 #include "button.hpp"
+#include "floatingText.hpp"
 #include "pileManager.hpp"
 #include "screenShake.hpp"
 #include "textureManager.hpp"
@@ -33,6 +34,7 @@ class Game {
   private:
 	TextureManager textureManager;
 	ScreenShake screenShake;
+	EffectManager effectManager;
 
 	PileManager pileManager;
 	Ui ui;

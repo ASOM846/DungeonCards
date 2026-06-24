@@ -1,4 +1,5 @@
 #include "pileManager.hpp"
+#include "cardGenerator.hpp"
 #include "interactionManager.hpp"
 #include "pile.hpp"
 #include "textureManager.hpp"
@@ -24,7 +25,6 @@ void PileManager::Reset() {
 }
 
 void PileManager::Init() {
-
 	Reset();
 
 	UpdatePilesOffset();
@@ -76,31 +76,65 @@ void PileManager::Init() {
 	for (auto &tmp : finalCardPool) {
 		Card card;
 
-		if (tmp.type == CardType::SPELL) {
-			card = GetRandomSpell();
+		card = CardGenerator::GetItemParms(tmp.type, tmp.element);
+		card.type = tmp.type;
+		card.element = tmp.element;
 
-		} else {
-			card = GenerateCardData(tmp.type, tmp.element);
+		card.maxDurability = -1;
+		card.durability = -1;
 
-			if (card.type == CardType::ENEMY) {
-				card.value = GetRandomValue(2, 10);
-			} else if (card.type == CardType::POTION)
-				card.value = GetRandomValue(2, 10);
-			else if (card.type == CardType::COIN)
-				card.value = GetRandomValue(1, 12);
-			else if (card.type == CardType::WEAPON) {
-				card.durability = 3;
-				card.maxDurability = 3;
-			} else
-				card.value = GetRandomValue(3, 9);
+		switch (tmp.type) {
+		case (CardType::SPELL): {
+			card = CardGenerator::GetRandomSpell();
+			break;
 		}
+		case (CardType::ENEMY): {
+			card = CardGenerator::GetRandomEnemy(tmp.element);
+			break;
+		}
+		case (CardType::POTION): {
+			card.name = "ELIXIR";
+			card.minValue = GetRandomValue(2, 4);
+			card.maxValue = GetRandomValue(4, 8);
+			break;
+		}
+		case (CardType::COIN): {
+			card.minValue = GetRandomValue(1, 12);
+			card.maxValue = card.minValue;
+			card.textureId = TextureId::Coin;
+			break;
+		}
+		case (CardType::WEAPON): {
+			card = CardGenerator::GetRandomWeapon();
+			break;
+		}
+		case (CardType::SHIELD): {
+			card.name = "SHIELD";
+			card.hp = GetRandomValue(2, 9);
+			card.textureId = TextureId::ItemShield;
+			break;
+		}
+		case (CardType::WAND): {
+			card = CardGenerator::GetItemParms(tmp.type, tmp.element);
+
+			card.maxDurability = 5;
+			card.durability = 5;
+			card.maxValue = 8;
+			card.minValue = 2;
+			break;
+		}
+		}
+
 		masterDeck.push_back(card);
 	}
 
 	Card sword;
 	sword.name = "SWORD";
 	sword.description = "SWORD - STANDARD WEAPON";
-	sword.value = 5;
+	sword.minValue = 3;
+	sword.maxValue = 7;
+	sword.durability = 5;
+	sword.maxDurability = 5;
 	sword.type = CardType::WEAPON;
 	sword.element = Element::NONE;
 	sword.textureId = TextureId::WeaponSword;
@@ -110,8 +144,9 @@ void PileManager::Init() {
 	Card player;
 	player.name = "PLAYER";
 	player.description = "YOUR HERO";
-	player.value = 13;
+	player.hp = 13;
 	player.maxValue = 13;
+	player.minValue = -1;
 	player.type = CardType::PLAYER;
 	player.element = Element::NONE;
 	player.textureId = TextureId::Knight1;
@@ -255,147 +290,4 @@ void PileManager::RefillRoomIfNeeded() {
 			}
 		}
 	}
-}
-
-TextureId PileManager::GetRandomMonsterTexture() {
-	static const std::vector<TextureId> textures = {
-		TextureId::Enemy1, TextureId::Enemy2, TextureId::Enemy3,
-		TextureId::Enemy4, TextureId::Enemy5, TextureId::Enemy6,
-		TextureId::Enemy7, TextureId::Enemy8,
-	};
-
-	int seed = GetRandomValue(0, textures.size() - 1);
-
-	return textures[seed];
-}
-
-Card PileManager::GetRandomSpell() {
-	std::vector<Element> elements;
-	elements.push_back(Element::LIFESTEAL);
-	elements.push_back(Element::LIFESTEAL);
-
-	elements.push_back(Element::WARHAMMER);
-	elements.push_back(Element::ESCAPE);
-
-	Element selectedElement;
-
-	int seed = GetRandomValue(0, elements.size() - 1);
-
-	selectedElement = elements[seed];
-
-	Card c = GenerateCardData(CardType::SPELL, selectedElement);
-
-	switch (selectedElement) {
-	case Element::LIFESTEAL:
-		c.value = GetRandomValue(6, 12);
-		break;
-	case Element::WARHAMMER:
-		c.value = 1;
-		break;
-	case Element::ESCAPE:
-		c.value = 1;
-		break;
-	}
-
-	return c;
-}
-
-ItemParms PileManager::GetRandomWeaponParms() {
-	static const std::vector<ItemParms> parms = {
-		{TextureId::WeaponSword, "SWORD"},
-		{TextureId::WeaponHammer, "HAMMER"},
-		{TextureId::WeaponAxe, "AXE"},
-		{TextureId::WeaponDoubleAxe, "DOUBLE AXE"},
-	};
-
-	int seed = GetRandomValue(0, parms.size() - 1);
-
-	return parms[seed];
-}
-
-Card PileManager::GenerateCardData(const CardType type, const Element element) {
-	Card c;
-	c.type = type;
-	c.element = element;
-
-	switch (type) {
-	case CardType::ENEMY:
-		c.textureId = GetRandomMonsterTexture();
-
-		if (c.element == Element::NONE) {
-			c.name = "MONSTER";
-			c.description = "MONSTER - STANDARD ENEMY";
-		}
-		if (c.element == Element::ICE) {
-			c.name = "FROST";
-			c.description = "FROST - DOUBLE DAMAGE FROM FIRE";
-			c.textureId = TextureId::EnemyIce;
-		}
-		if (c.element == Element::FIRE) {
-			c.name = "BLAZE";
-			c.description = "BLAZE - DOUBLE DAMAGE FROM ICE";
-			c.textureId = TextureId::EnemyFire;
-		}
-		break;
-	case CardType::WEAPON: {
-		ItemParms weaponParms = GetRandomWeaponParms();
-		c.name = weaponParms.name;
-		c.textureId = weaponParms.textureId;
-
-		c.description = TextFormat("%s - STANDARD WEAPON", c.name.c_str());
-		break;
-	}
-	case CardType::SPELL:
-		c.name = "SPELL";
-		c.description = "SPELL - UNKNOW MAGIC";
-		if (c.element == Element::LIFESTEAL) {
-			c.name = "LIFESTEAL";
-			c.description = "LIFESTEAL - HEALS YOU WITH DAMAGE IT DEALS";
-			c.textureId = TextureId::WeaponGoldenSword;
-		}
-		if (c.element == Element::WARHAMMER) {
-			c.name = "WARHAMMER";
-			c.description = "WARHAMMER - SEND CARD BACK TO THE MASTER DECK";
-			c.textureId = TextureId::WeaponHammer;
-		}
-		if (c.element == Element::ESCAPE) {
-			c.name = "ESCAPE";
-			c.description = "ESCAPE - REDRAW 4 CARDS";
-			c.textureId = TextureId::FlaskBlue;
-		}
-		break;
-	case CardType::WAND:
-		if (c.element == Element::ICE) {
-			c.name = "ICE WAND";
-			c.description = "ICE WAND - DEALS DOUBLE DAMAGE TO FIRE. DEALS NO "
-							"DAMAGE TO ICE";
-			c.textureId = TextureId::WeaponWandIce;
-		}
-		if (c.element == Element::FIRE) {
-			c.name = "FIRE WAND";
-			c.description = "FIRE WAND - DEALS DOUBLE DAMAGE TO ICE. DEALS NO "
-							"DAMAGE TO FIRE";
-			c.textureId = TextureId::WeaponWandFire;
-		}
-		break;
-	case CardType::SHIELD:
-		c.name = "SHIELD";
-		c.description = "SHIELD - DAMAGE ABSORPTION ITEM";
-		c.textureId = TextureId::ItemShield;
-		break;
-	case CardType::POTION:
-		c.name = "HP Elixir";
-		c.description = "POTION - HEALS YOU";
-		c.textureId = TextureId::FlaskRed;
-		break;
-	case CardType::COIN:
-		c.name = "COIN";
-		c.description = "COIN - COLLECT GOLD TO SCORE POINTS";
-		c.textureId = TextureId::Coin;
-		break;
-	case CardType::PLAYER:
-	case CardType::COUNT:
-		break;
-	}
-	return c;
 }

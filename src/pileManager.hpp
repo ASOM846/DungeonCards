@@ -5,11 +5,6 @@
 #include "types.hpp"
 #include <raylib.h>
 
-struct ItemParms {
-	TextureId textureId;
-	const char *name;
-};
-
 class PileManager {
   public:
 	PileManager() = default;
@@ -33,11 +28,6 @@ class PileManager {
 	Pile &GetDungeonPile(DungeonSlot slot) { return dungeonPiles[slot]; }
 
 	Pile *GetDungeonPiles() { return dungeonPiles; }
-
-	TextureId GetRandomMonsterTexture();
-	Card GetRandomSpell();
-	ItemParms GetRandomWeaponParms();
-	Card GenerateCardData(const CardType type, const Element element);
 
 	[[nodiscard]] int GetMasterDeckSize() { return masterDeck.size(); }
 	[[nodiscard]] std::vector<Card> &GetMasterDeck() { return masterDeck; }

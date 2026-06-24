@@ -17,6 +17,7 @@ enum class Element {
 };
 
 enum class CardType {
+	NONE,
 	ENEMY,
 	WEAPON,
 	SPELL,
@@ -47,8 +48,11 @@ enum DungeonSlot {
 struct Card {
 	std::string name;
 	std::string description;
-	int value;
+
+	int minValue = -1;
 	int maxValue = -1;
+
+	int hp;
 
 	int durability;
 	int maxDurability;
@@ -58,13 +62,30 @@ struct Card {
 
 	TextureId textureId;
 
-	void IncreaseVal(int val) {
-		value += val;
+	[[nodiscard]] int GetRandomVal() const {
+		return (GetRandomValue(minValue, maxValue));
+	}
+
+	void Clear() {
+		name = "---";
+		description = " --- - ---";
+		minValue = -1;
+		maxValue = -1;
+		hp = -1;
+		durability = -1;
+		maxDurability = -1;
+		type = CardType::NONE;
+		element = Element::NONE;
+		textureId = TextureId::NONE;
+	}
+
+	void IncreaseHp(int val) {
+		hp += val;
 
 		if (maxValue == -1) {
 			return;
 		}
 
-		value = std::min(value, maxValue);
+		hp = std::min(hp, maxValue);
 	}
 };

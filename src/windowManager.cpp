@@ -5,6 +5,8 @@
 void WindowManager::Init() {
 	InitWindow(screenWidth, screenHeight, windowTitle);
 
+	SetWindowState(FLAG_WINDOW_RESIZABLE);
+
 	SetTargetFPS(targetFPS);
 
 	windowState = WindowState::MENU;

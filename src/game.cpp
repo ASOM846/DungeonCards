@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include "floatingText.hpp"
 #include "interactionManager.hpp"
 #include "textureManager.hpp"
 #include "types.hpp"
@@ -70,9 +71,14 @@ void Game::Draw() {
 void Game::UpdatePlay() {
 	screenShake.update(GetFrameTime());
 
+	if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+		effectManager.SpawnText(GetMousePosition(), "-8", RED);
+	};
+	effectManager.Update(GetFrameTime());
+
 	Pile &playerPile = pileManager.GetPlayerPile(P_PLAYER);
 	if (!playerPile.IsEmpty()) {
-		if (playerPile.Back().value <= 0) {
+		if (playerPile.Back().hp <= 0) {
 			gameState = GameState::LOSE;
 		}
 	}
@@ -94,11 +100,17 @@ void Game::UpdatePlay() {
 		Pile *clickedPile = pileManager.GetPileAt(mousePos);
 
 		if (clickedPile != nullptr) {
-			InteractionManager::Handle(selected, clickedPile, score,
-									   &pileManager.GetPlayerPile(P_PLAYER),
-									   pileManager.GetDungeonPiles(),
-									   pileManager.GetMasterDeck(),
-									   cardsDefeated, screenShake);
+			InteractionContext ctx{
+				.score = score,
+				.cardsDefeated = cardsDefeated,
+				.mousePos = GetMousePosition(),
+				.playerPile = &pileManager.GetPlayerPile(P_PLAYER),
+				.dungeonPiles = pileManager.GetDungeonPiles(),
+				.masterDeck = pileManager.GetMasterDeck(),
+				.screenShake = screenShake,
+				.effectManager = effectManager};
+
+			InteractionManager::Handle(selected, clickedPile, ctx);
 		}
 	}
 
@@ -121,6 +133,7 @@ void Game::UpdatePlay() {
 }
 void Game::DrawPlay() {
 	pileManager.DrawAll(textureManager, selected);
+	effectManager.Draw();
 
 	Ui::DrawMessageBox(pileManager.GetCardAt(GetMousePosition()), score);
 
