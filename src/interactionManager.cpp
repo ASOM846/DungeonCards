@@ -1,6 +1,7 @@
 #include "interactionManager.hpp"
 #include "floatingText.hpp"
 #include "screenShake.hpp"
+#include "textureManager.hpp"
 #include "types.hpp"
 #include <raylib.h>
 #include <string>
@@ -18,7 +19,7 @@ bool InteractionManager::ShouldHighlight(Pile *selected, Pile *target) {
 	if (target->IsEmpty()) {
 		if (target->isLeftHand || target->isRightHand || target->isBackpack) {
 			return (selType == CardType::WEAPON || selType == CardType::WAND ||
-					selType == CardType::POTION ||
+					selType == CardType::POTION || selType == CardType::KEY ||
 					selType == CardType::SHIELD || selType == CardType::SPELL);
 		}
 		return false;
@@ -26,12 +27,18 @@ bool InteractionManager::ShouldHighlight(Pile *selected, Pile *target) {
 
 	CardType tarType = target->Back().type;
 
-	if (selected->isBackpack) {
-		return (target->isRightHand || target->isLeftHand);
+	bool isSelItemSlot =
+		selected->isLeftHand || selected->isRightHand || selected->isBackpack;
+	bool isTarItemSlot =
+		target->isLeftHand || target->isRightHand || target->isBackpack;
+
+	if (isSelItemSlot && isTarItemSlot) {
+		return true;
 	}
 
-	if (selected->isDungeonPile && target->isDungeonPile)
+	if (selected->isDungeonPile && target->isDungeonPile) {
 		return false;
+	}
 
 	if (selType == CardType::ENEMY) {
 		return (tarType == CardType::PLAYER || tarType == CardType::SHIELD);
@@ -48,6 +55,14 @@ bool InteractionManager::ShouldHighlight(Pile *selected, Pile *target) {
 
 	if (selType == CardType::COIN) {
 		return (tarType == CardType::PLAYER);
+	}
+
+	if (selType == CardType::KEY) {
+		return (tarType == CardType::CHEST);
+	}
+
+	if (selType == CardType::WEAPON_UPGRADE) {
+		return (tarType == CardType::WEAPON);
 	}
 
 	Element selELement = selected->Back().element;
@@ -89,7 +104,8 @@ void InteractionManager::Handle(Pile *&selected, Pile *target,
 			return;
 		}
 
-		if (selected->cards.back().type == CardType::ENEMY) {
+		if (selected->cards.back().type == CardType::ENEMY ||
+			selected->Back().type == CardType::CHEST) {
 			selected = nullptr;
 			return;
 		}
@@ -120,6 +136,19 @@ void InteractionManager::ResolveCardInteraction(Pile *selected, Pile *target,
 	Card &sel = selected->cards.back();
 	Card &tar = target->cards.back();
 
+	bool isSelItemSlot =
+		selected->isLeftHand || selected->isRightHand || selected->isBackpack;
+	bool isTarItemSlot =
+		target->isLeftHand || target->isRightHand || target->isBackpack;
+
+	if (isSelItemSlot && isTarItemSlot) {
+		if (!(sel.type == CardType::WEAPON_UPGRADE)) {
+
+			std::swap(selected->Back(), target->Back());
+			return;
+		}
+	}
+
 	if (sel.type == CardType::WEAPON && tar.type == CardType::ENEMY) {
 		ResolveWeaponVsEnemy(selected, target, sel, tar, ctx);
 	} else if (sel.type == CardType::ENEMY && tar.type == CardType::PLAYER) {
@@ -134,6 +163,11 @@ void InteractionManager::ResolveCardInteraction(Pile *selected, Pile *target,
 		ResolveCoinVsPlayer(selected, target, sel, tar, ctx);
 	} else if (sel.type == CardType::SPELL && tar.type == CardType::ENEMY) {
 		ResolveSpellVsEnemy(selected, target, sel, tar, ctx);
+	} else if (sel.type == CardType::KEY && tar.type == CardType::CHEST) {
+		ResolveKeyVsChest(selected, target, sel, tar, ctx);
+	} else if (sel.type == CardType::WEAPON_UPGRADE &&
+			   tar.type == CardType::WEAPON) {
+		ResolveWeaponUpgradeVsWeapon(selected, target, sel, tar, ctx);
 	} else {
 	}
 }
@@ -164,6 +198,8 @@ void InteractionManager::ResolveWeaponVsEnemy(Pile *selected, Pile *target,
 
 	ctx.effectManager.SpawnText(ctx.mousePos,
 								"-" + std::to_string(weaponDamage), RED);
+	ctx.screenShake.trigger();
+
 	if (weaponDamage >= zombieHp) {
 		ctx.score += zombieHp;
 
@@ -191,6 +227,8 @@ void InteractionManager::ResolvePlayerVsEnemy(Pile *target, Card &sel,
 
 	ctx.effectManager.SpawnText(ctx.mousePos, "-" + std::to_string(enemyHp),
 								RED);
+	ctx.screenShake.trigger();
+
 	ctx.score += enemyHp;
 
 	playerHp -= enemyHp;
@@ -208,6 +246,7 @@ void InteractionManager::ResolveEnemyVsShield(Pile *selected, Pile *target,
 
 	ctx.effectManager.SpawnText(ctx.mousePos, "-" + std::to_string(shieldVal),
 								RED);
+	ctx.screenShake.trigger();
 
 	if (shieldVal >= enemyHp) {
 		shieldVal -= enemyHp;
@@ -243,6 +282,7 @@ void InteractionManager::ResolvePotionVsPlayer(Pile *selected, Pile *target,
 
 	ctx.effectManager.SpawnText(ctx.mousePos, "+" + std::to_string(potionVal),
 								GREEN);
+
 	selected->cards.pop_back();
 	ctx.cardsDefeated++;
 }
@@ -271,6 +311,8 @@ void InteractionManager::ResolveWandVsEnemy(Pile *selected, Pile *target,
 
 	ctx.effectManager.SpawnText(ctx.mousePos, "-" + std::to_string(totalDamage),
 								textColor);
+	ctx.screenShake.trigger();
+
 	if (totalDamage >= tarHp) {
 		ctx.score += tarHp;
 		target->cards.pop_back();
@@ -290,7 +332,11 @@ void InteractionManager::ResolveWandVsEnemy(Pile *selected, Pile *target,
 void InteractionManager::ResolveCoinVsPlayer(Pile *selected, Pile *target,
 											 Card &sel, Card &tar,
 											 InteractionContext &ctx) {
-	ctx.score += sel.GetRandomVal();
+	int coinVal = sel.GetRandomVal();
+	ctx.score += coinVal;
+	ctx.effectManager.SpawnText(ctx.mousePos, "+" + std::to_string(coinVal),
+								GOLD);
+
 	selected->cards.pop_back();
 	ctx.cardsDefeated++;
 }
@@ -317,9 +363,11 @@ void InteractionManager::ResolveSpellVsEnemy(Pile *selected, Pile *target,
 			enemyHp -= selPower;
 			ctx.score += selPower;
 		}
-
-		selected->cards.pop_back();
-		ctx.cardsDefeated++;
+		ctx.screenShake.trigger();
+		ctx.effectManager.SpawnText(ctx.mousePos,
+									"-" + std::to_string(dmgDealt), RED);
+		ctx.effectManager.SpawnText(ctx.playerPile->GetFloatingTextPos(),
+									"+" + std::to_string(dmgDealt), GREEN);
 
 		if (ctx.playerPile != nullptr && !ctx.playerPile->IsEmpty()) {
 			ctx.playerPile->Back().IncreaseHp(dmgDealt);
@@ -328,13 +376,15 @@ void InteractionManager::ResolveSpellVsEnemy(Pile *selected, Pile *target,
 	}
 	case Element::WARHAMMER: {
 		ctx.masterDeck.insert(ctx.masterDeck.begin(), tar);
+		ctx.screenShake.trigger();
+
 		target->cards.pop_back();
-		selected->cards.pop_back();
 		ctx.cardsDefeated++;
+
+		selected->cards.pop_back();
 		return;
 	}
 	case Element::ESCAPE: {
-
 		if (selected != nullptr && !selected->IsEmpty()) {
 			selected->cards.pop_back();
 		}
@@ -354,5 +404,60 @@ void InteractionManager::ResolveSpellVsEnemy(Pile *selected, Pile *target,
 		}
 		return;
 	}
+	}
+
+	sel.durability--;
+
+	if (sel.durability <= 0) {
+		selected->cards.pop_back();
+		ctx.cardsDefeated++;
+	}
+}
+
+void InteractionManager::ResolveKeyVsChest(Pile *selected, Pile *target,
+										   Card &sel, Card &tar,
+										   InteractionContext &ctx) {
+	selected->cards.pop_back();
+
+	tar.type = CardType::COIN;
+	tar.name = "COIN";
+	tar.textureId = TextureId::Coin;
+
+	tar.minValue = GetRandomValue(30, 50);
+	tar.maxValue = 50;
+
+	tar.hp = -1;
+	tar.durability = -1;
+	tar.maxDurability = -1;
+
+	ctx.effectManager.SpawnText(ctx.mousePos, "OPEN!", GOLD);
+	ctx.screenShake.trigger();
+}
+
+void InteractionManager::ResolveWeaponUpgradeVsWeapon(Pile *selected,
+													  Pile *target, Card &sel,
+													  Card &tar,
+													  InteractionContext &ctx) {
+	switch (sel.element) {
+	case Element::NONE:
+	case Element::FIRE: {
+		if (tar.type == CardType::WEAPON) {
+			tar.name = "FIRE " + tar.name;
+		}
+
+		tar.maxValue += 2;
+		tar.minValue += 2;
+
+		ctx.effectManager.SpawnText(ctx.mousePos, "+2", ORANGE);
+		selected->cards.pop_back();
+		return;
+	}
+	case Element::ICE:
+	case Element::LIFESTEAL:
+	case Element::WARHAMMER:
+	case Element::ESCAPE:
+	case Element::SACRIFICE:
+	case Element::COUNT:
+		break;
 	}
 }

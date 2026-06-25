@@ -20,6 +20,8 @@ class EffectManager {
   public:
 	EffectManager() = default;
 
+	void Reset() { activeTexts.clear(); }
+
 	void SpawnText(Vector2 startPos, const std::string &text, Color color,
 				   float lifetime = 1.0f) {
 		FloatingText ft;

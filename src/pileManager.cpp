@@ -36,9 +36,9 @@ void PileManager::Init() {
 
 	std::vector<CardTemplate> finalCardPool;
 
-	int totalCardsNeeded = 64;
+	int totalCardsNeeded = 60;
 
-	int packSize = 16;
+	int packSize = 15;
 	int numPacks = totalCardsNeeded / packSize;
 
 	for (int pack = 0; pack < numPacks; pack++) {
@@ -49,13 +49,19 @@ void PileManager::Init() {
 		for (int i = 0; i < 2; i++)
 			finalCardPool.push_back({CardType::ENEMY, Element::FIRE});
 
-		for (int i = 0; i < 1; i++)
-			finalCardPool.push_back({CardType::POTION, Element::NONE});
+		if (GetRandomValue(0, 1) == 0) {
+			for (int i = 0; i < 1; i++)
+				finalCardPool.push_back({CardType::POTION, Element::NONE});
+		} else {
+			for (int i = 0; i < 1; i++)
+				finalCardPool.push_back(
+					{CardType::WEAPON_UPGRADE, Element::FIRE});
+		}
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 1; i++)
 			finalCardPool.push_back({CardType::WEAPON, Element::NONE});
 
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 1; i++) {
 			finalCardPool.push_back({CardType::SPELL, Element::NONE});
 		}
 
@@ -66,8 +72,14 @@ void PileManager::Init() {
 			(GetRandomValue(0, 1) == 0) ? Element::FIRE : Element::ICE;
 		finalCardPool.push_back({CardType::WAND, wandElement});
 
-		finalCardPool.push_back({CardType::COIN, Element::NONE});
+		for (int i = 0; i < 2; i++) {
+			finalCardPool.push_back({CardType::COIN, Element::NONE});
+		}
 	}
+	finalCardPool.push_back({CardType::CHEST, Element::NONE});
+	finalCardPool.push_back({CardType::KEY, Element::NONE});
+	finalCardPool.push_back({CardType::COIN, Element::NONE});
+	finalCardPool.push_back({CardType::ENEMY, Element::NONE});
 
 	std::random_device rd;
 	std::mt19937 g(rd());
@@ -114,6 +126,35 @@ void PileManager::Init() {
 			card.textureId = TextureId::ItemShield;
 			break;
 		}
+		case (CardType::CHEST): {
+			card.hp = 1;
+			card.durability = 1;
+			card.maxDurability = 1;
+			card.name = "CHEST";
+			card.textureId = TextureId::ItemChest;
+			break;
+		}
+		case (CardType::KEY): {
+			card.hp = 1;
+			card.durability = 1;
+			card.maxDurability = 1;
+			card.name = "KEY";
+			card.textureId = TextureId::ItemKey;
+			break;
+		}
+		case (CardType::WEAPON_UPGRADE): {
+			if (card.element == Element::FIRE) {
+				card.name = "FIRE ELIXIR";
+				card.maxValue = -1;
+				card.minValue = -1;
+				card.hp = 1;
+				card.durability = -1;
+				card.maxDurability = -1;
+				card.textureId = TextureId::FlaskBigYellow;
+				card.type = CardType::WEAPON_UPGRADE;
+			}
+			break;
+		}
 		case (CardType::WAND): {
 			card = CardGenerator::GetItemParms(tmp.type, tmp.element);
 
@@ -150,8 +191,6 @@ void PileManager::Init() {
 	player.type = CardType::PLAYER;
 	player.element = Element::NONE;
 	player.textureId = TextureId::Knight1;
-
-	playerPiles[P_PLAYER].cards.push_back(player);
 
 	playerPiles[P_PLAYER].cards.push_back(player);
 }

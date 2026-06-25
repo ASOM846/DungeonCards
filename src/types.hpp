@@ -18,6 +18,9 @@ enum class Element {
 
 enum class CardType {
 	NONE,
+	WEAPON_UPGRADE,
+	KEY,
+	CHEST,
 	ENEMY,
 	WEAPON,
 	SPELL,

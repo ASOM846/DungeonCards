@@ -3,7 +3,6 @@
 #include "interactionManager.hpp"
 #include "textureManager.hpp"
 #include "types.hpp"
-#include <iostream>
 #include <raylib.h>
 
 void Game::Init() {
@@ -28,6 +27,9 @@ void Game::Reset() {
 
 	pileManager.Init();
 
+	effectManager.Reset();
+	screenShake.reset();
+
 	boardCamera.target = {.x = 0.0F, .y = 0.0F};
 	boardCamera.offset = {.x = 0.0F, .y = 0.0F};
 	boardCamera.rotation = 0.0F;
@@ -35,10 +37,6 @@ void Game::Reset() {
 }
 
 void Game::Update() {
-	if (IsKeyPressed(KEY_SPACE)) {
-		screenShake.trigger(50.0f, 2.0f);
-	}
-
 	if (gameState == GameState::PLAYING) {
 		UpdatePlay();
 	}
@@ -71,9 +69,6 @@ void Game::Draw() {
 void Game::UpdatePlay() {
 	screenShake.update(GetFrameTime());
 
-	if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-		effectManager.SpawnText(GetMousePosition(), "-8", RED);
-	};
 	effectManager.Update(GetFrameTime());
 
 	Pile &playerPile = pileManager.GetPlayerPile(P_PLAYER);

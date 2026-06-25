@@ -52,4 +52,11 @@ class InteractionManager {
 
 	static void ResolveSpellVsEnemy(Pile *selected, Pile *target, Card &sel,
 									Card &tar, InteractionContext &ctx);
+
+	static void ResolveKeyVsChest(Pile *selected, Pile *target, Card &sel,
+								  Card &tar, InteractionContext &ctx);
+
+	static void ResolveWeaponUpgradeVsWeapon(Pile *selected, Pile *target,
+											 Card &sel, Card &tar,
+											 InteractionContext &ctx);
 };

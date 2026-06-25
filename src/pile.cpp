@@ -120,7 +120,10 @@ void Pile::Draw(TextureManager &tm, bool isSelected, bool isHighlited) {
 	DrawTextureEx(texture, {drawX, drawY - 5 * scale}, 0.0f, scale, RAYWHITE);
 
 	if ((cards.back().type == CardType::WEAPON ||
-		 cards.back().type == CardType::WAND) &&
+		 cards.back().type == CardType::WAND ||
+		 cards.back().type == CardType::SPELL ||
+		 cards.back().type == CardType::CHEST ||
+		 cards.back().type == CardType::KEY) &&
 		cards.back().maxDurability > 0 && cards.back().maxDurability != -1) {
 		int maxDur = cards.back().maxDurability;
 		int curDur = cards.back().durability;

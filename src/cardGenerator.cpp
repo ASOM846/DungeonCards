@@ -126,7 +126,7 @@ Card CardGenerator::GetRandomSpell() {
 
 	c.name = "SPELL";
 	c.description = "SPELL - UNKNOW MAGIC";
-	c.hp = 1;
+	c.hp = -1;
 
 	c.type = CardType::SPELL;
 
@@ -210,6 +210,19 @@ Card CardGenerator::GetItemParms(const CardType type, const Element element) {
 			c.description = "ICE FIRE - DOUBLE DAMAE TO ICE";
 			c.textureId = TextureId::WeaponWandFire;
 		}
+		break;
+	case CardType::CHEST: {
+		c.name = "CHEST";
+		c.description = "CHEST - NEEDS KEY TO OPEN, CONTAINS COOL STUFF";
+		c.textureId = TextureId::ItemChest;
+		break;
+	}
+	case CardType::KEY: {
+		c.name = "CHEST KEY";
+		c.description = "KEY - USE IT TO OPEN A CHEST";
+		c.textureId = TextureId::ItemKey;
+		break;
+	}
 	}
 	return c;
 }

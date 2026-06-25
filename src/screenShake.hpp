@@ -10,7 +10,14 @@ struct ScreenShake {
 	float totalTime = 0.0f;
 	float timeLeft = 0.0f;
 
-	void trigger(float inten, float duration) {
+	void reset() {
+		offset = {.x = 0, .y = 0};
+		intensity = 0.0F;
+		totalTime = 0.0F;
+		timeLeft = 0.0F;
+	}
+
+	void trigger(float inten = 1.0, float duration = 0.4) {
 		intensity = std::max(intensity, inten);
 		totalTime = std::max(totalTime, duration);
 		timeLeft = std::max(timeLeft, duration);
@@ -29,7 +36,7 @@ struct ScreenShake {
 			(static_cast<float>(GetRandomValue(-100, 100)) / 100.0f) * cur;
 		float ry =
 			(static_cast<float>(GetRandomValue(-100, 100)) / 100.0f) * cur;
-		offset = {rx, ry};
+		offset = {.x = rx, .y = ry};
 		if (timeLeft <= 0.0f)
 			offset = {0.0f, 0.0f};
 	}
