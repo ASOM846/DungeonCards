@@ -26,6 +26,7 @@ enum class TextureId {
 	FlaskRed,
 	FlaskYellow,
 	FlaskBigYellow,
+	FlaskBigBlue,
 	WeaponAxe,
 	WeaponDoubleAxe,
 	WeaponGoldenSword,
@@ -38,6 +39,7 @@ enum class TextureId {
 	WeaponWandIce,
 	ItemChest,
 	ItemKey,
+	ItemAnvil,
 	Background,
 	Vinete,
 	NONE,
@@ -79,6 +81,7 @@ class TextureManager {
 		load(TextureId::FlaskRed, "assets/flaskRed.png");
 		load(TextureId::FlaskYellow, "assets/flaskYellow.png");
 		load(TextureId::FlaskBigYellow, "assets/flaskBigYellow.png");
+		load(TextureId::FlaskBigBlue, "assets/flaskBigBlue.png");
 		load(TextureId::WeaponAxe, "assets/weaponAxe.png");
 		load(TextureId::WeaponDoubleAxe, "assets/weaponDoubleAxe.png");
 		load(TextureId::WeaponGoldenSword, "assets/weaponGoldenSword.png");
@@ -90,6 +93,7 @@ class TextureManager {
 		load(TextureId::WeaponWandIce, "assets/weaponWandIce.png");
 		load(TextureId::ItemChest, "assets/itemChest.png");
 		load(TextureId::ItemKey, "assets/itemKey.png");
+		load(TextureId::ItemAnvil, "assets/itemAnvil.png");
 		load(TextureId::Background, "assets/bcg4.png");
 		load(TextureId::Vinete, "assets/vinete2.png");
 

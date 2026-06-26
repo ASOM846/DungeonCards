@@ -113,6 +113,9 @@ void Pile::Draw(TextureManager &tm, bool isSelected, bool isHighlited) {
 	if (cards.back().textureId == TextureId::ItemShield) {
 		scale = 0.5F;
 	}
+	if (cards.back().textureId == TextureId::ItemAnvil) {
+		scale = 0.3F;
+	}
 
 	float drawX = centerX - (texture.width * scale) / 2.0f;
 	float drawY = centerY - (texture.height * scale) / 2.0f;
@@ -123,8 +126,11 @@ void Pile::Draw(TextureManager &tm, bool isSelected, bool isHighlited) {
 		 cards.back().type == CardType::WAND ||
 		 cards.back().type == CardType::SPELL ||
 		 cards.back().type == CardType::CHEST ||
-		 cards.back().type == CardType::KEY) &&
-		cards.back().maxDurability > 0 && cards.back().maxDurability != -1) {
+		 cards.back().type == CardType::KEY ||
+		 (cards.back().type == CardType::WEAPON_UPGRADE &&
+		  cards.back().element == Element::ANVIL) &&
+			 cards.back().maxDurability > 0 &&
+			 cards.back().maxDurability != -1)) {
 		int maxDur = cards.back().maxDurability;
 		int curDur = cards.back().durability;
 
@@ -163,8 +169,28 @@ void Pile::DrawCardBackground(Vector2 position) {
 	DrawRectangle(position.x, position.y, width, height, darkWood);
 
 	const float border = 6;
+	float bgX = position.x + border;
+	float bgY = position.y + border;
+	float bgW = width - (2 * border);
+	float bgH = height - (2 * border);
+
 	DrawRectangle(position.x + border, position.y + border,
 				  width - (2 * border), height - (2 * border), parchment);
+
+	if (!IsEmpty()) {
+		Element cardElement = cards.back().element;
+
+		if (cardElement == Element::FIRE) {
+			DrawRectangleGradientV(bgX, bgY, bgW, bgH, Fade(ORANGE, 0.0f),
+								   Fade(ORANGE, 0.4f));
+		} else if (cardElement == Element::ICE) {
+			DrawRectangleGradientV(bgX, bgY, bgW, bgH, Fade(SKYBLUE, 0.0f),
+								   Fade(SKYBLUE, 0.4));
+		} else if (cardElement == Element::LIFESTEAL) {
+			DrawRectangleGradientV(bgX, bgY, bgW, bgH, Fade(GOLD, 0.0f),
+								   Fade(GOLD, 0.4));
+		}
+	}
 
 	int innerMargin = border + 4;
 	DrawRectangleLinesEx({position.x + static_cast<float>(innerMargin),

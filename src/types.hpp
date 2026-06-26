@@ -7,12 +7,17 @@
 
 enum class Element {
 	NONE,
+
 	FIRE,
 	ICE,
+
+	ANVIL,
+
 	LIFESTEAL,
 	WARHAMMER, // back to master deck
 	ESCAPE,	   // redraw 4 cards
 	SACRIFICE, // deal damage equal to points remaining to max heal
+
 	COUNT
 };
 
@@ -90,5 +95,11 @@ struct Card {
 		}
 
 		hp = std::min(hp, maxValue);
+	}
+
+	void Repair(int val) {
+		durability += val;
+
+		durability = std::min(durability, maxDurability);
 	}
 };

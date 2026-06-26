@@ -53,9 +53,12 @@ void PileManager::Init() {
 			for (int i = 0; i < 1; i++)
 				finalCardPool.push_back({CardType::POTION, Element::NONE});
 		} else {
-			for (int i = 0; i < 1; i++)
+			for (int i = 0; i < 1; i++) {
+				Element upgradeElement =
+					(GetRandomValue(0, 1) != 0) ? Element::FIRE : Element::ICE;
 				finalCardPool.push_back(
-					{CardType::WEAPON_UPGRADE, Element::FIRE});
+					{CardType::WEAPON_UPGRADE, upgradeElement});
+			}
 		}
 
 		for (int i = 0; i < 1; i++)
@@ -79,7 +82,7 @@ void PileManager::Init() {
 	finalCardPool.push_back({CardType::CHEST, Element::NONE});
 	finalCardPool.push_back({CardType::KEY, Element::NONE});
 	finalCardPool.push_back({CardType::COIN, Element::NONE});
-	finalCardPool.push_back({CardType::ENEMY, Element::NONE});
+	finalCardPool.push_back({CardType::WEAPON_UPGRADE, Element::ANVIL});
 
 	std::random_device rd;
 	std::mt19937 g(rd());
@@ -152,6 +155,25 @@ void PileManager::Init() {
 				card.maxDurability = -1;
 				card.textureId = TextureId::FlaskBigYellow;
 				card.type = CardType::WEAPON_UPGRADE;
+			} else if (card.element == Element::ICE) {
+				card.name = "ICE ELIXIR";
+				card.maxValue = -1;
+				card.minValue = -1;
+				card.hp = 1;
+				card.durability = -1;
+				card.maxDurability = -1;
+				card.textureId = TextureId::FlaskBigBlue;
+				card.type = CardType::WEAPON_UPGRADE;
+			} else if (card.element == Element::ANVIL) {
+				card.name = "ANVIL";
+				card.type = CardType::WEAPON_UPGRADE;
+				card.element = Element::ANVIL;
+				card.textureId = TextureId::ItemAnvil;
+				card.maxDurability = 2;
+				card.durability = 2;
+				card.hp = -1;
+				card.maxValue = 5;
+				card.minValue = 1;
 			}
 			break;
 		}
@@ -168,6 +190,17 @@ void PileManager::Init() {
 
 		masterDeck.push_back(card);
 	}
+	Card card;
+	card.name = "ANVIL";
+	card.type = CardType::WEAPON_UPGRADE;
+	card.element = Element::ANVIL;
+	card.textureId = TextureId::ItemAnvil;
+	card.maxDurability = 2;
+	card.durability = 2;
+	card.hp = -1;
+	card.maxValue = 5;
+	card.minValue = 1;
+	dungeonPiles[D_THREE].cards.push_back(card);
 
 	Card sword;
 	sword.name = "SWORD";

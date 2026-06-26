@@ -366,8 +366,6 @@ void InteractionManager::ResolveSpellVsEnemy(Pile *selected, Pile *target,
 		ctx.screenShake.trigger();
 		ctx.effectManager.SpawnText(ctx.mousePos,
 									"-" + std::to_string(dmgDealt), RED);
-		ctx.effectManager.SpawnText(ctx.playerPile->GetFloatingTextPos(),
-									"+" + std::to_string(dmgDealt), GREEN);
 
 		if (ctx.playerPile != nullptr && !ctx.playerPile->IsEmpty()) {
 			ctx.playerPile->Back().IncreaseHp(dmgDealt);
@@ -448,11 +446,35 @@ void InteractionManager::ResolveWeaponUpgradeVsWeapon(Pile *selected,
 		tar.maxValue += 2;
 		tar.minValue += 2;
 
+		tar.element = Element::FIRE;
+
 		ctx.effectManager.SpawnText(ctx.mousePos, "+2", ORANGE);
 		selected->cards.pop_back();
 		return;
 	}
-	case Element::ICE:
+	case Element::ICE: {
+		if (tar.type == CardType::WEAPON) {
+			tar.name = "ICE " + tar.name;
+		}
+
+		tar.maxValue += 3;
+		tar.minValue += 3;
+
+		tar.element = Element::ICE;
+		ctx.effectManager.SpawnText(ctx.mousePos, "+3", BLUE);
+		selected->cards.pop_back();
+		return;
+	}
+	case Element::ANVIL: {
+		int repairVal = sel.GetRandomVal();
+		tar.Repair(repairVal);
+
+		sel.durability--;
+		if (sel.durability <= 0) {
+			selected->cards.pop_back();
+		}
+		return;
+	}
 	case Element::LIFESTEAL:
 	case Element::WARHAMMER:
 	case Element::ESCAPE:
