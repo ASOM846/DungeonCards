@@ -244,7 +244,7 @@ void InteractionManager::ResolveEnemyVsShield(Pile *selected, Pile *target,
 
 	ctx.score += enemyHp;
 
-	ctx.effectManager.SpawnText(ctx.mousePos, "-" + std::to_string(shieldVal),
+	ctx.effectManager.SpawnText(ctx.mousePos, "-" + std::to_string(enemyHp),
 								RED);
 	ctx.screenShake.trigger();
 
