@@ -208,14 +208,13 @@ void InteractionManager::ResolveWeaponVsEnemy(Pile *selected, Pile *target,
 
 	} else {
 		zombieHp -= weaponDamage;
-
-		ctx.cardsDefeated++;
 	}
 
 	sel.durability--;
 
 	if (sel.durability <= 0) {
 		selected->cards.pop_back();
+		ctx.cardsDefeated++;
 	}
 }
 
@@ -377,9 +376,9 @@ void InteractionManager::ResolveSpellVsEnemy(Pile *selected, Pile *target,
 		ctx.screenShake.trigger();
 
 		target->cards.pop_back();
-		ctx.cardsDefeated++;
 
 		selected->cards.pop_back();
+		ctx.cardsDefeated++;
 		return;
 	}
 	case Element::ESCAPE: {

@@ -4,6 +4,7 @@
 #include "textureManager.hpp"
 #include "types.hpp"
 #include <raylib.h>
+#include <string>
 
 void Game::Init() {
 	Reset();
@@ -63,7 +64,7 @@ void Game::Draw() {
 		DrawWinLose();
 	}
 
-	Ui::DrawProgressBar(pileManager.GetMasterDeckSize(), cardsDefeated);
+	Ui::DrawProgressBar(pileManager.GetMasterDeckStartingSize(), cardsDefeated);
 }
 
 void Game::UpdatePlay() {
@@ -104,6 +105,11 @@ void Game::UpdatePlay() {
 				.masterDeck = pileManager.GetMasterDeck(),
 				.screenShake = screenShake,
 				.effectManager = effectManager};
+
+			// TraceLog(LOG_INFO, "-------------------");
+			// TraceLog(LOG_INFO, std::to_string(ctx.cardsDefeated).c_str());
+			// TraceLog(LOG_INFO,
+			// std::to_string(ctx.masterDeck.size()).c_str());
 
 			InteractionManager::Handle(selected, clickedPile, ctx);
 		}

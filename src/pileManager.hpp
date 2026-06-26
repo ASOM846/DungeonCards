@@ -30,12 +30,15 @@ class PileManager {
 	Pile *GetDungeonPiles() { return dungeonPiles; }
 
 	[[nodiscard]] int GetMasterDeckSize() { return masterDeck.size(); }
+	[[nodiscard]] int GetMasterDeckStartingSize() const { return cardsInDeck; }
 	[[nodiscard]] std::vector<Card> &GetMasterDeck() { return masterDeck; }
 
   private:
 	std::vector<Card> masterDeck;
 
 	const int MAX_CARDS_ON_TABLE = 4;
+
+	int cardsInDeck = 0;
 
 	Pile playerPiles[P_COUNT];
 	Pile dungeonPiles[D_COUNT];

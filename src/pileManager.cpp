@@ -36,10 +36,10 @@ void PileManager::Init() {
 
 	std::vector<CardTemplate> finalCardPool;
 
-	int totalCardsNeeded = 60;
+	cardsInDeck = 60;
 
 	int packSize = 15;
-	int numPacks = totalCardsNeeded / packSize;
+	int numPacks = cardsInDeck / packSize;
 
 	for (int pack = 0; pack < numPacks; pack++) {
 		for (int i = 0; i < 4; i++)

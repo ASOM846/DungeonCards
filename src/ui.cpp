@@ -41,7 +41,6 @@ void Ui::DrawMessageBox(const Card *card, const int &score) {
 
 void Ui::DrawMessageRect(const Rectangle &dst, const char *text,
 						 float shadowOffset, const Font &font) {
-
 	const auto shadow = Color{0, 0, 0, 100};
 	const auto darkWood = Color{60, 30, 15, 255};
 	const auto parchment = Color{220, 200, 170, 255};
