@@ -13,6 +13,7 @@ void WindowManager::Init() {
 
 	game.Init();
 	menu.Init();
+	tutorial.Init();
 }
 
 void WindowManager::Run() {
@@ -30,6 +31,8 @@ void WindowManager::Update() {
 		MenuUpdateResoult resoult = menu.Update();
 		if (resoult == MenuUpdateResoult::PLAY)
 			SwitchState(WindowState::GAME);
+		if (resoult == MenuUpdateResoult::TUTORIAL)
+			SwitchState(WindowState::TUTORIAL);
 		break;
 	}
 	case WindowState::GAME: {
@@ -40,6 +43,13 @@ void WindowManager::Update() {
 		}
 		break;
 	}
+	case WindowState::TUTORIAL:
+		tutorial.Update(GetMousePosition());
+
+		if (tutorial.ShouldReturnToMenu()) {
+			SwitchState(WindowState::MENU);
+		}
+		break;
 	}
 }
 
@@ -57,6 +67,9 @@ void WindowManager::Render() {
 	case WindowState::GAME:
 		game.Draw();
 		break;
+	case WindowState::TUTORIAL:
+		tutorial.Draw(*game.GetTextureManager());
+		break;
 	}
 
 	EndDrawing();
@@ -72,6 +85,9 @@ void WindowManager::SwitchState(const WindowState newState) {
 		break;
 	case WindowState::GAME:
 		game.Reset();
+		break;
+	case WindowState::TUTORIAL:
+		tutorial.Reset();
 		break;
 	}
 

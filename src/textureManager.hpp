@@ -42,6 +42,10 @@ enum class TextureId {
 	ItemAnvil,
 	Background,
 	Vinete,
+	Tutorial1,
+	Tutorial2,
+	Tutorial3,
+	Tutorial4,
 	NONE,
 };
 
@@ -95,6 +99,10 @@ class TextureManager {
 		load(TextureId::ItemKey, "assets/itemKey.png");
 		load(TextureId::ItemAnvil, "assets/itemAnvil.png");
 		load(TextureId::Background, "assets/bcg4.png");
+		load(TextureId::Tutorial1, "assets/tutorial_1.png");
+		load(TextureId::Tutorial2, "assets/tutorial_2.png");
+		load(TextureId::Tutorial3, "assets/tutorial_3.png");
+		load(TextureId::Tutorial4, "assets/tutorial_4.png");
 		load(TextureId::Vinete, "assets/vinete2.png");
 
 		customFont = LoadFontEx("assets/DungeonFont.ttf", 40, nullptr, 250);

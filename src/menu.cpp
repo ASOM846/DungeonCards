@@ -8,6 +8,7 @@ void Menu::Init() {
 	UpdateButtonsPos();
 
 	playButton.text = "Play";
+	tutorialButton.text = "How to play";
 }
 
 void Menu::UpdateButtonsPos() {
@@ -19,15 +20,30 @@ void Menu::UpdateButtonsPos() {
 					   .y = GetScreenHeight() / 2.0f,
 					   .width = playButtonW,
 					   .height = playButtonH};
+
+	float tutorialButtonW = 200;
+	float tutorialButtonH = 80;
+	float gap = 20;
+
+	tutorialButton.rect = {
+		.x = GetScreenWidth() / 2.0f - tutorialButtonW / 2.0f,
+		.y = playButton.rect.y + playButton.rect.height + gap,
+		.width = tutorialButtonW,
+		.height = tutorialButtonH};
 }
 
 MenuUpdateResoult Menu::Update() {
 	UpdateButtonsPos();
 
 	playButton.Update(GetMousePosition());
+	tutorialButton.Update(GetMousePosition());
 
 	if (playButton.IsClicked(GetMousePosition())) {
 		return MenuUpdateResoult::PLAY;
+	}
+
+	if (tutorialButton.IsClicked(GetMousePosition())) {
+		return MenuUpdateResoult::TUTORIAL;
 	}
 
 	return MenuUpdateResoult::NONE;
@@ -37,6 +53,7 @@ void Menu::Draw(TextureManager &tm) const {
 	DrawTitle(tm);
 
 	playButton.Draw(tm.getCustonFont());
+	tutorialButton.Draw(tm.getCustonFont());
 }
 
 void Menu::DrawTitle(TextureManager &tm) const {

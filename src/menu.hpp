@@ -7,6 +7,7 @@
 enum class MenuUpdateResoult {
 	NONE,
 	PLAY,
+	TUTORIAL,
 };
 
 class Menu {
@@ -19,6 +20,7 @@ class Menu {
 
   private:
 	Button playButton;
+	Button tutorialButton;
 
 	const char *gameTitle;
 

@@ -2,9 +2,11 @@
 
 #include "game.hpp"
 #include "menu.hpp"
+#include "tutorial.hpp"
 
 enum class WindowState {
 	GAME,
+	TUTORIAL,
 	MENU,
 };
 
@@ -32,4 +34,5 @@ class WindowManager {
 
 	Game game;
 	Menu menu;
+	TutorialState tutorial;
 };

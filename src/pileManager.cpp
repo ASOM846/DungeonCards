@@ -38,15 +38,15 @@ void PileManager::Init() {
 
 	cardsInDeck = 60;
 
-	int packSize = 15;
+	int packSize = 20;
 	int numPacks = cardsInDeck / packSize;
 
 	for (int pack = 0; pack < numPacks; pack++) {
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 5; i++)
 			finalCardPool.push_back({CardType::ENEMY, Element::NONE});
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 			finalCardPool.push_back({CardType::ENEMY, Element::ICE});
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 			finalCardPool.push_back({CardType::ENEMY, Element::FIRE});
 
 		if (GetRandomValue(0, 1) == 0) {
@@ -61,7 +61,7 @@ void PileManager::Init() {
 			}
 		}
 
-		for (int i = 0; i < 1; i++)
+		for (int i = 0; i < 2; i++)
 			finalCardPool.push_back({CardType::WEAPON, Element::NONE});
 
 		for (int i = 0; i < 1; i++) {
@@ -75,7 +75,7 @@ void PileManager::Init() {
 			(GetRandomValue(0, 1) == 0) ? Element::FIRE : Element::ICE;
 		finalCardPool.push_back({CardType::WAND, wandElement});
 
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 3; i++) {
 			finalCardPool.push_back({CardType::COIN, Element::NONE});
 		}
 	}
@@ -83,6 +83,7 @@ void PileManager::Init() {
 	finalCardPool.push_back({CardType::KEY, Element::NONE});
 	finalCardPool.push_back({CardType::COIN, Element::NONE});
 	finalCardPool.push_back({CardType::WEAPON_UPGRADE, Element::ANVIL});
+	finalCardPool.push_back({CardType::SPELL, Element::NONE});
 
 	std::random_device rd;
 	std::mt19937 g(rd());
@@ -206,6 +207,28 @@ void PileManager::Init() {
 	card.maxValue = 5;
 	card.minValue = 1;
 	dungeonPiles[D_TWO].cards.push_back(card);
+
+	card.name = "FIRE ELIXIR";
+	card.description = "+2 BASE DAMAGE TO DESIRED WEAPON";
+	card.maxValue = -1;
+	card.minValue = -1;
+	card.hp = 1;
+	card.durability = -1;
+	card.maxDurability = -1;
+	card.textureId = TextureId::FlaskBigYellow;
+	card.type = CardType::WEAPON_UPGRADE;
+	dungeonPiles[D_THREE].cards.push_back(card);
+
+	card.name = "ICE ELIXIR";
+	card.description = "+3 BASE DAMAGE TO DESIRED WEAPON";
+	card.maxValue = -1;
+	card.minValue = -1;
+	card.hp = 1;
+	card.durability = -1;
+	card.maxDurability = -1;
+	card.textureId = TextureId::FlaskBigBlue;
+	card.type = CardType::WEAPON_UPGRADE;
+	dungeonPiles[D_FOUR].cards.push_back(card);
 
 	Card sword;
 	sword.name = "SWORD";
