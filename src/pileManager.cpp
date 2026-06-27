@@ -148,6 +148,7 @@ void PileManager::Init() {
 		case (CardType::WEAPON_UPGRADE): {
 			if (card.element == Element::FIRE) {
 				card.name = "FIRE ELIXIR";
+				card.description = "+2 BASE DAMAGE TO DESIRED WEAPON";
 				card.maxValue = -1;
 				card.minValue = -1;
 				card.hp = 1;
@@ -157,6 +158,7 @@ void PileManager::Init() {
 				card.type = CardType::WEAPON_UPGRADE;
 			} else if (card.element == Element::ICE) {
 				card.name = "ICE ELIXIR";
+				card.description = "+3 BASE DAMAGE TO DESIRED WEAPON";
 				card.maxValue = -1;
 				card.minValue = -1;
 				card.hp = 1;
@@ -166,6 +168,7 @@ void PileManager::Init() {
 				card.type = CardType::WEAPON_UPGRADE;
 			} else if (card.element == Element::ANVIL) {
 				card.name = "ANVIL";
+				card.description = "ANVIL - USE IT TO REPAIR DAMAGED WEAPON";
 				card.type = CardType::WEAPON_UPGRADE;
 				card.element = Element::ANVIL;
 				card.textureId = TextureId::ItemAnvil;
@@ -190,8 +193,10 @@ void PileManager::Init() {
 
 		masterDeck.push_back(card);
 	}
+
 	Card card;
 	card.name = "ANVIL";
+	card.description = "ANVIL - USE IT TO REPAIR DAMAGED WEAPON";
 	card.type = CardType::WEAPON_UPGRADE;
 	card.element = Element::ANVIL;
 	card.textureId = TextureId::ItemAnvil;
@@ -200,7 +205,7 @@ void PileManager::Init() {
 	card.hp = -1;
 	card.maxValue = 5;
 	card.minValue = 1;
-	dungeonPiles[D_THREE].cards.push_back(card);
+	dungeonPiles[D_TWO].cards.push_back(card);
 
 	Card sword;
 	sword.name = "SWORD";

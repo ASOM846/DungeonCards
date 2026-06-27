@@ -20,7 +20,8 @@ bool InteractionManager::ShouldHighlight(Pile *selected, Pile *target) {
 		if (target->isLeftHand || target->isRightHand || target->isBackpack) {
 			return (selType == CardType::WEAPON || selType == CardType::WAND ||
 					selType == CardType::POTION || selType == CardType::KEY ||
-					selType == CardType::SHIELD || selType == CardType::SPELL);
+					selType == CardType::SHIELD || selType == CardType::SPELL ||
+					selType == CardType::WEAPON_UPGRADE);
 		}
 		return false;
 	}
@@ -31,6 +32,10 @@ bool InteractionManager::ShouldHighlight(Pile *selected, Pile *target) {
 		selected->isLeftHand || selected->isRightHand || selected->isBackpack;
 	bool isTarItemSlot =
 		target->isLeftHand || target->isRightHand || target->isBackpack;
+
+	if (selected->isBackpack) {
+		return isTarItemSlot;
+	}
 
 	if (isSelItemSlot && isTarItemSlot) {
 		return true;
@@ -142,12 +147,17 @@ void InteractionManager::ResolveCardInteraction(Pile *selected, Pile *target,
 		target->isLeftHand || target->isRightHand || target->isBackpack;
 
 	if (isSelItemSlot && isTarItemSlot) {
-		if (!(sel.type == CardType::WEAPON_UPGRADE)) {
+		if (sel.type == CardType::WEAPON_UPGRADE &&
+			tar.type == CardType::WEAPON && !selected->isBackpack) {
 
+		} else {
 			std::swap(selected->Back(), target->Back());
 			return;
 		}
 	}
+
+	if (selected->isBackpack)
+		return;
 
 	if (sel.type == CardType::WEAPON && tar.type == CardType::ENEMY) {
 		ResolveWeaponVsEnemy(selected, target, sel, tar, ctx);
