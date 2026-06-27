@@ -195,41 +195,6 @@ void PileManager::Init() {
 		masterDeck.push_back(card);
 	}
 
-	Card card;
-	card.name = "ANVIL";
-	card.description = "ANVIL - USE IT TO REPAIR DAMAGED WEAPON";
-	card.type = CardType::WEAPON_UPGRADE;
-	card.element = Element::ANVIL;
-	card.textureId = TextureId::ItemAnvil;
-	card.maxDurability = 2;
-	card.durability = 2;
-	card.hp = -1;
-	card.maxValue = 5;
-	card.minValue = 1;
-	dungeonPiles[D_TWO].cards.push_back(card);
-
-	card.name = "FIRE ELIXIR";
-	card.description = "+2 BASE DAMAGE TO DESIRED WEAPON";
-	card.maxValue = -1;
-	card.minValue = -1;
-	card.hp = 1;
-	card.durability = -1;
-	card.maxDurability = -1;
-	card.textureId = TextureId::FlaskBigYellow;
-	card.type = CardType::WEAPON_UPGRADE;
-	dungeonPiles[D_THREE].cards.push_back(card);
-
-	card.name = "ICE ELIXIR";
-	card.description = "+3 BASE DAMAGE TO DESIRED WEAPON";
-	card.maxValue = -1;
-	card.minValue = -1;
-	card.hp = 1;
-	card.durability = -1;
-	card.maxDurability = -1;
-	card.textureId = TextureId::FlaskBigBlue;
-	card.type = CardType::WEAPON_UPGRADE;
-	dungeonPiles[D_FOUR].cards.push_back(card);
-
 	Card sword;
 	sword.name = "SWORD";
 	sword.description = "SWORD - STANDARD WEAPON";

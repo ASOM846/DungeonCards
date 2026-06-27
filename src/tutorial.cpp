@@ -130,13 +130,15 @@ void TutorialState::Draw(TextureManager &textureManager) {
 	float fontSpacing = 1;
 	Font font = textureManager.getCustonFont();
 
-	Vector2 textM = MeasureTextEx(font, "DungeonCards", fontSize, fontSpacing);
+	Vector2 textM = MeasureTextEx(font, "DungeonCards - How to play", fontSize,
+								  fontSpacing);
 
 	Vector2 textPos = {GetScreenWidth() / 2 - textM.x / 2,
 					   static_cast<float>(fontSize / 2)};
 
-	DrawTextEx(font, "DungeonCards", {textPos.x + 4.0f, textPos.y + 4.0f},
-			   fontSize, fontSpacing, Color{0, 0, 0, 100});
-	DrawTextEx(font, "DungeonCards", textPos, fontSize, fontSpacing,
-			   CLITERAL(Color){245, 237, 215, 255});
+	DrawTextEx(font, "DungeonCards - How to play",
+			   {textPos.x + 4.0f, textPos.y + 4.0f}, fontSize, fontSpacing,
+			   Color{0, 0, 0, 100});
+	DrawTextEx(font, "DungeonCards - How to play", textPos, fontSize,
+			   fontSpacing, CLITERAL(Color){245, 237, 215, 255});
 }

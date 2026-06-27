@@ -12,7 +12,7 @@ void Menu::Init() {
 }
 
 void Menu::UpdateButtonsPos() {
-	float playButtonW = 200;
+	float playButtonW = 250;
 	float playButtonH = 80;
 
 	playButton.rect = {.x = GetScreenWidth() / 2.0f -
@@ -21,7 +21,7 @@ void Menu::UpdateButtonsPos() {
 					   .width = playButtonW,
 					   .height = playButtonH};
 
-	float tutorialButtonW = 200;
+	float tutorialButtonW = 250;
 	float tutorialButtonH = 80;
 	float gap = 20;
 
