@@ -17,10 +17,10 @@ struct WeaponTemplate {
 
 Card CardGenerator::GetRandomWeapon() {
 	static std::vector<WeaponTemplate> pool = {
-		{TextureId::WeaponRustySword, "RUSTY SWORD", 1, 3, 2, 50},
+		{TextureId::WeaponRustySword, "RUSTY S.", 1, 3, 2, 50},
 		{TextureId::WeaponSword, "SWORD", 2, 6, 3, 30},
 		{TextureId::WeaponAxe, "AXE", 4, 8, 2, 15},
-		{TextureId::WeaponDoubleAxe, "DOUBLE AXE", 6, 10, 2, 10},
+		{TextureId::WeaponDoubleAxe, "D. AXE", 6, 10, 2, 10},
 		{TextureId::WeaponHammer, "HAMMER", 4, 10, 3, 10},
 		{TextureId::WeaponMace, "MACE", 10, 12, 1, 5}};
 

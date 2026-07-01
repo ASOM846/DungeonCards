@@ -206,8 +206,25 @@ void InteractionManager::ResolveWeaponVsEnemy(Pile *selected, Pile *target,
 	int weaponDamage = sel.GetRandomVal();
 	int &zombieHp = tar.hp;
 
-	ctx.effectManager.SpawnText(ctx.mousePos,
-								"-" + std::to_string(weaponDamage), RED);
+	if (sel.element == Element::FIRE && tar.element == Element::ICE) {
+		weaponDamage *= 2;
+	}
+
+	if (sel.element == Element::ICE && tar.element == Element::ICE) {
+		weaponDamage *= 2;
+	}
+
+	if (sel.element == Element::ICE) {
+		ctx.effectManager.SpawnText(ctx.mousePos,
+									"-" + std::to_string(weaponDamage), BLUE);
+	} else if (sel.element == Element::FIRE) {
+		ctx.effectManager.SpawnText(ctx.mousePos,
+									"-" + std::to_string(weaponDamage), ORANGE);
+	} else {
+		ctx.effectManager.SpawnText(ctx.mousePos,
+									"-" + std::to_string(weaponDamage), RED);
+	}
+
 	ctx.screenShake.trigger();
 
 	if (weaponDamage >= zombieHp) {
